@@ -1,13 +1,15 @@
-#include "MQTTClientHandler.h"
+#include "MQTTClientConnection.h"
 
 /* Configurazione WiFi e MQTT */
-const char* ssid = "LittleBarfly";
-const char* password = "esiot-2024-2025";
-const char* mqtt_server = "broker.mqtt-dashboard.com";
-const char* topic = "esiot-2024";
+const char* wifi_ssid = "iPhone (4)";
+const char* wifi_password = "12345678";
+const char* mqtt_server = "d4d5510d5dd54ceea93cb08348cdbb8d.s1.eu.hivemq.cloud";
+const char* mqtt_topic = "esiot-2024";
+const char* mqtt_username = "MicheleFarneti";
+const char* mqtt_password = "12345678aA";
 
 /* Creazione dell'istanza MQTT */
-MQTTClientHandler mqttClient(ssid, password, mqtt_server, topic);
+MQTTClientConnection mqttClient(wifi_ssid, wifi_password, mqtt_server, mqtt_topic, mqtt_username, mqtt_password);
 
 void setup() {
     mqttClient.begin();
