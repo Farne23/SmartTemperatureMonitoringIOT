@@ -1,7 +1,7 @@
 #include "MQTTClientConnection.h"
 
-MQTTClientConnection::MQTTClientConnection(const char* ssid, const char* password, const char* server, const char* topic, const char* username, const char* mqtt_password)
-    : ssid(ssid), password(password), mqtt_server(server), topic(topic), mqtt_user(username), mqtt_pass(mqtt_password), client(espClient) {}
+MQTTClientConnection::MQTTClientConnection(const char* ssid, const char* password, const char* server, const char* username, const char* mqtt_password)
+    : ssid(ssid), password(password), mqtt_server(server), mqtt_user(username), mqtt_pass(mqtt_password), client(espClient) {}
 
 void MQTTClientConnection::begin() {
     Serial.begin(115200);
@@ -36,7 +36,7 @@ void MQTTClientConnection::reconnectMQTT() {
         String clientId = "esiot-client-" + String(random(0xffff), HEX);
         if (client.connect(clientId.c_str(), mqtt_user, mqtt_pass)) {
             Serial.println("connected");
-            client.subscribe(topic);
+            //client.subscribe(topic);
         } else {
             Serial.print("failed, rc=");
             Serial.print(client.state());
@@ -46,7 +46,7 @@ void MQTTClientConnection::reconnectMQTT() {
     }
 }
 
-void MQTTClientConnection::publishMessage(const char* message) {
+void MQTTClientConnection::publishMessage(const char* topic, const char* message) {
     Serial.println(String("Publishing: ") + message);
     client.publish(topic, message);
 }
