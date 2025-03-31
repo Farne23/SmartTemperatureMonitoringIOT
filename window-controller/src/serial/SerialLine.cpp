@@ -30,7 +30,12 @@ void SerialLine::getData()
         if (text[0] = 'P')
         {
             char* endptr = nullptr;
-            this->angle = strtod(content.substring(1).c_str(), &endptr);
+            if (text[1] == 'M') {
+                this->manPerc = strtod(content.substring(2).c_str(), &endptr);
+            } else if (text[1] == 'A') {
+                this->autoPerc = strtod(content.substring(2).c_str(), &endptr);
+            }
+            
         }
     }
 }
@@ -45,8 +50,13 @@ double SerialLine::getTemp()
     return this->temp;
 }
 
-double SerialLine::getAngle()
+double SerialLine::getManPerc()
 {
-    return this->angle;
+    return this->manPerc;
+}
+
+double SerialLine::getAutoPerc()
+{
+    return this->autoPerc;
 }
 

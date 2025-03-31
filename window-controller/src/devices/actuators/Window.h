@@ -8,7 +8,7 @@
 
 class Window {
     public:
-        Window(ServoMotor* servo);
+        Window(int pin);
         void set(double perc);
     private:
         ServoMotor* servo;

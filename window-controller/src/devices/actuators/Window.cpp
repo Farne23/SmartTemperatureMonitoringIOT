@@ -1,7 +1,8 @@
 #include "devices/actuators/Window.h"
+#include "devices/actuators/ServoMotorImpl.h"
 
-Window::Window(ServoMotor* servo){
-    this->servo = servo;
+Window::Window(int pin){
+    this->servo = new ServoMotorImpl(pin);
     this->servo->on();
     this->close();
 }

@@ -10,11 +10,13 @@ class SerialLine {
         void getData();
         bool getChangeStatus();
         double getTemp();
-        double getAngle();
+        double getManPerc();
+        double getAutoPerc();
     private:
         bool changeStatus;
         double temp;
-        double angle;
+        double manPerc;
+        double autoPerc;
 };
 
 #endif
