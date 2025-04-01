@@ -11,18 +11,22 @@ void WindowRegTask::tick() {
             this->controller->switchMode();
         }
         else {
-            this->controller->setAngle(this->controller->getAutoAngle());
+            this->controller->setPerc(this->controller->getAutoPerc());
         }
     }
     else if (this->controller->getMode() == MANUAL) {
         double temp = this->controller->getTemp();
-        double perc = this->controller->getManAngle();
+        double perc = this->controller->getManPerc();
 
-        // if perc is not null i guess(?)
-        if (perc) {
-            this->controller->setAngle(perc);
+        // if perc is a defined value
+        if (!isnan(perc)) {
+            this->controller->setDashboardOn();
+        }
+
+        if (this->controller->getDashboardComm()) {
+            this->controller->setPerc(perc);
         } else {
-            // get perc from tuner and set it.
+            this->controller->setPerc(this->controller->getTunerPerc());
         }
     }
 }

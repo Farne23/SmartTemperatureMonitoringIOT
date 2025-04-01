@@ -13,33 +13,17 @@ LCDisplay::LCDisplay()
     this->lcd.backlight();
 }
 
-void LCDisplay::printMsg(string msgName) {
+void LCDisplay::printMsg(string line1, string line2) {
     /*
-     * lines is an entry (key, value) structured as a pair
-     * lines.first -> key
-     * lines.second -> value
+     * if both lines can be contained in the display
      */
-    auto lines = this->msgs.find(msgName);
-    if (lines != msgs.end()) {
+    if (line1.size() <= COLS && line2.size() <= COLS) {
         this->lcd.clear();
         // first row, first column
         this->lcd.setCursor(ST, ST);
-        this->lcd.print(lines->second.first.c_str());
+        this->lcd.print(line1.c_str());
         // second row, first column
         this->lcd.setCursor(ST, ND);
-        this->lcd.print(lines->second.second.c_str());
-    }    
-}
-
-bool LCDisplay::addMsg(string name, string line1, string line2) {
-    /*
-     * if both lines can be contained in the display and
-     * name doesn't already exist
-     */
-    if (this->msgs.find(name) == this->msgs.end() &&
-        line1.size() <= COLS && line2.size() <= COLS) {
-        this->msgs.insert({name, {line1, line2}});
-        return true;
-    }
-    return false;
+        this->lcd.print(line2.c_str());
+    }  
 }

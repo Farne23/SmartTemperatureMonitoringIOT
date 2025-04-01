@@ -7,11 +7,9 @@
 class WindowRegTask : public Task {
     private:
         WindowController *controller;
-        SerialLine *line;
     
     public:
         WindowRegTask(WindowController *controller);
-        void init();
         void tick();
 };
 

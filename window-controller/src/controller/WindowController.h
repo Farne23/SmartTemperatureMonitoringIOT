@@ -5,7 +5,7 @@
 #include "devices/potentiometer/TunerImpl.h"
 #include "devices/actuators/Window.h"
 #include "devices/displays/Display.h"
-#include "devices/buttons/ButtonImpl.h"
+#include "devices/buttons/SwitchButton.h"
 
 enum ControlMode {
     MANUAL,
@@ -18,8 +18,9 @@ class WindowController {
         TunerImpl* tuner;
         Window* window;
         Display* display;
-        ButtonImpl* button;
+        SwitchButton* button;
         SerialLine* line;
+        bool dashboardComm;
         
     public:
         WindowController(int btnPin, int tunePin, int winPin);
@@ -31,6 +32,10 @@ class WindowController {
         double getTemp();
         bool getSwitch();
         void setPerc(double perc);
+        bool switchReq();
+        double getTunerPerc();
+        bool getDashboardComm();
+        void setDashboardOn();
         
 };
 

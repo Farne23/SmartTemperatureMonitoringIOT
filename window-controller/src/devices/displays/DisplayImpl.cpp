@@ -1,31 +1,25 @@
-#include "DisplayImpl.h"
+#include "devices/displays/DisplayImpl.h"
 #include "settings/DisplayMessages.h"
 
-DisplayImpl :: DisplayImpl(){
+#define AUTO_LINE1 "XXX% AUTO"
+#define AUTO_LINE2 ""
+#define MAN_LINE1 "XXX% AUTO"
+#define MAN_LINE2 "XXX °C"
+
+DisplayImpl::DisplayImpl(){
     this->lcd = new LCDisplay();
-    this->init();
 }
 
-void DisplayImpl :: init(){
-    this->lcd->addMsg("readyToOpen",READYTOOPEN_LINE1,READYTOOPEN_LINE2);
-    this->lcd->addMsg("readyToClose",READYTOCLOSE_LINE1,READYTOCLOSE_LINE2);
-    this->lcd->addMsg("received",RECEIVED_LINE1,RECEIVED_LINE2);
-    this->lcd->addMsg("full",FULL_LINE1,FULL_LINE2);
-    this->lcd->addMsg("problem",PROBLEM_LINE1,PROBLEM_LINE2);
+void DisplayImpl::displayAuto(double perc){
+    string line1 = AUTO_LINE1;
+    line1.replace(0, 3, String(perc * 100, 0).c_str());
+    this->lcd->printMsg(line1, AUTO_LINE2);
 }
 
-void DisplayImpl ::displayReadyToOpen(){
-    this->lcd->printMsg("readyToOpen");
-}
-void DisplayImpl ::displayReadyToClose(){
-    this->lcd->printMsg("readyToClose");
-}
-void DisplayImpl ::displayReceived(){
-    this->lcd->printMsg("received");
-}
-void DisplayImpl ::displayFull(){
-    this->lcd->printMsg("full");
-}
-void DisplayImpl ::displayProblem(){
-    this->lcd->printMsg("problem");
+void DisplayImpl::displayMan(double perc, double temp){
+    string line1 = MAN_LINE1;
+    string line2 = MAN_LINE2;
+    line1.replace(0, 3, String(perc * 100, 0).c_str());
+    line2.replace(0, 3, String(temp, 2).c_str());
+    this->lcd->printMsg(line1, line2);
 }
