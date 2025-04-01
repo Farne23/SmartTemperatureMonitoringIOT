@@ -16,10 +16,10 @@ public class ControlUnit implements TempSensorDataReceiver {
 	//Stack keeping track of the last N temperatures sampled
 	private Stack<TemperatureSample> temperatures;
 	
-	public ControlUnit
+	public ControlUnit () {}
 
 	@Override
-	public synchronized void communicateTemperature(int temperature, Date date) {
+	public void communicateTemperature(Date date, double temperature) {
 		temperatures.push(new TemperatureSample(date,temperature));	
 	}
 
