@@ -57,7 +57,7 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
         this.username=config.get("username");
         this.password=config.get("password");
         this.topicTemperature = config.get("topic_temperature");
-        this.topicPeriod = config.get("topic-period");
+        this.topicPeriod = config.get("topic_period");
 	}
 	
 	public void start(){
@@ -65,8 +65,13 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
         MqttClientOptions options = new MqttClientOptions()
             .setUsername(this.username)
             .setPassword(this.password)
-            .setSsl(true);
-            // .setTrustAll(true); 
+            .setSsl(true)
+            .setTrustAll(true);  //Standard HiveMQV version doesn't allow certificates
+        
+        log(this.brokerAddress);
+        log(Integer.toString( this.brokerPort));
+        log(this.username);
+        log(this.password);
 
         System.out.println(vertx);
         this.client = MqttClient.create(vertx, options);
@@ -97,16 +102,10 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
 	}
 
 
-	@Override
-	public void setFrequency(int period) {
-		//agent.publishMessage(topicPeriod, Integer.toString(period));
+	private void setFrequency(int period) {
+		publishMessage(topicPeriod, Integer.toString(period));
 	}
 
-	@Override
-	public synchronized void getTemperatures() {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	public void publishMessage(String topic, String message) {
     	log("Publishing a message");
