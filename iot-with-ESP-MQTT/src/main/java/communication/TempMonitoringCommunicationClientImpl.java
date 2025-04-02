@@ -98,24 +98,51 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
             } else {
                 log("Connection failed: " + c.cause().getMessage());
             }
-        });        
+        });  
+        
+        
+        vertx.eventBus().consumer("my.address", message -> {
+            System.out.println("Messaggio ricevuto: " + message.body());
+            message.reply("Ciao Sender, messaggio ricevuto!");
+            setFrequency(Integer.parseInt(message.body().toString()));
+        });
+     
 	}
 
 
+	/*
+	 * Publishes a message in the periods'topic,
+	 * containing the new sampling period the esp32 environment has to 
+	 * work with.
+	 * 
+	 * @param period New sampling period to be sent.
+	 */
 	private void setFrequency(int period) {
-		publishMessage(topicPeriod, Integer.toString(period));
+		publishMessage(topicPeriod, Integer.toString(period),MqttQoS.EXACTLY_ONCE);
 	}
 
-	
-	public void publishMessage(String topic, String message) {
+	/*
+	 * Publishes a message, as a string, on a given topic,
+	 * and with a given quality of service.
+	 * 
+	 * @param topic
+	 * @param message
+	 * @param QoS
+	 */
+	private void publishMessage(String topic, String message, MqttQoS QoS) {
     	log("Publishing a message");
         client.publish(topic,
             Buffer.buffer(message),
-            MqttQoS.AT_LEAST_ONCE,
+            QoS,
             false,
             false);
     }
 	
+	/*
+	 * Simple log function used for debug
+	 * 
+	 * @param msg The message to be printed
+	 */
 	private void log(String msg) {
         System.out.println("[MQTT AGENT] " + msg);
     }
