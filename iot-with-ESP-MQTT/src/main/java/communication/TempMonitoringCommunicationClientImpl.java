@@ -81,19 +81,17 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
                 log("Connected successfully");
                 client.publishHandler(
                 		s -> {				
-  						  System.out.println("New message in topic: " + s.topicName());
-  				          System.out.println("Content (as string): " + s.payload().toString());
-  				          System.out.println("QoS: " + s.qosLevel());
-  				          
-  				          JSONObject json = new JSONObject(s.payload());
-  				          SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-  							try {
-  								Date timestamp = sdf.parse(json.getString("timestamp"));
-  								double temperature = json.getDouble("temperature");
-  							} catch (ParseException | JSONException e) {
-  								System.out.println("JSON non riconoscibile");
-  								e.printStackTrace();
-      							}		                
+							System.out.println("New message in topic: " + s.topicName());
+					        System.out.println("Content (as string): " + s.payload().toString());
+					        System.out.println("QoS: " + s.qosLevel());
+					          
+					        vertx.eventBus().request("temperatures.line", s.payload(), reply -> {
+				                if (reply.succeeded()) {
+				                    System.out.println("SenderVerticle got reply: " + reply.result().body());
+				                } else {
+				                    System.err.println("SenderVerticle failed to receive reply.");
+				                }
+				            });	                
       				}).subscribe(topicTemperature, 2);
             } else {
                 log("Connection failed: " + c.cause().getMessage());
@@ -101,9 +99,9 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
         });  
         
         
-        vertx.eventBus().consumer("my.address", message -> {
+        vertx.eventBus().consumer("period.line", message -> {
             System.out.println("Messaggio ricevuto: " + message.body());
-            message.reply("Ciao Sender, messaggio ricevuto!");
+            //message.reply("Ciao Sender, messaggio ricevuto!");
             setFrequency(Integer.parseInt(message.body().toString()));
         });
      
