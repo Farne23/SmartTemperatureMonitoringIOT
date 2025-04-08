@@ -1,5 +1,4 @@
 #include "devices/displays/DisplayImpl.h"
-#include "settings/DisplayMessages.h"
 
 #define AUTO_LINE1 "XXX% AUTO"
 #define AUTO_LINE2 ""
