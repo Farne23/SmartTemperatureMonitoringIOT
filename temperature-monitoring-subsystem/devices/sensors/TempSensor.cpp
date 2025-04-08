@@ -1,8 +1,8 @@
 #include "TempSensor.h"
 #include <Arduino.h>
 
-#define TO_VOLT 4.88
-#define TO_DEG 0.1
+/* A temperature sensor implementation working for ESP32 and it's VMax of 3,33V */
+#define TO_C (3.33 / 4095.0 * 100.0)    // ≈ 0.0813 °C per step
 
 TempSensor::TempSensor(int pin) {
     this->pin = pin;
@@ -10,14 +10,7 @@ TempSensor::TempSensor(int pin) {
 }
 
 double TempSensor::sense() {
-    // value read by PWM signal
-    int temp_adc_val;
-    double temp_val;
-    /* Read Temperature */
-    temp_adc_val = analogRead(this->pin);
-    /* Convert adc value to equivalent voltage */
-    temp_val = (temp_adc_val * TO_VOLT);
-    /* LM35 gives output of 10mv/°C */
-    temp_val = (temp_val * TO_DEG);
+    int temp_adc_val = analogRead(this->pin);
+    double temp_val = temp_adc_val * TO_C;
     return temp_val;
 }
