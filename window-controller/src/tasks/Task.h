@@ -10,11 +10,7 @@ class Task {
 
     public:
 
-    /* Function used to set up the Task to the wantend inital conditions*/
-    virtual void initBehaviour();
-
     virtual void init(int period){
-        initBehaviour();
         myPeriod = period;  
         timeElapsed = 0;
     }
