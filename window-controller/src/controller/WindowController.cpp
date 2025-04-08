@@ -1,12 +1,13 @@
 #include "WindowController.h"
 #include "devices/displays/DisplayImpl.h"
+#include "settings/HwInterfaces.h"
 
-WindowController::WindowController(int btnPin, int tunePin, int winPin) {
+WindowController::WindowController() {
     this->mode = AUTO;
-    this->button = new SwitchButton(btnPin);
+    this->button = new SwitchButton(SWITCH_BUTTON_PIN);
     this->display = new DisplayImpl();
-    this->tuner = new TunerImpl(tunePin);
-    this->window = new Window(winPin);
+    this->tuner = new TunerImpl(POT_PIN);
+    this->window = new Window(SERVO_MOTOR_PIN);
     this->line = new SerialLine();
     this->dashboardComm = false;
 }

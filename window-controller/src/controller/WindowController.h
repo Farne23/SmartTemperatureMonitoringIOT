@@ -23,7 +23,7 @@ class WindowController {
         bool dashboardComm;
         
     public:
-        WindowController(int btnPin, int tunePin, int winPin);
+        WindowController();
         ControlMode getMode();
         void switchMode();
         void updateData();
