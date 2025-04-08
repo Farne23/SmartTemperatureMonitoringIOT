@@ -1,4 +1,8 @@
 #include "MQTTClientConnection.h"
+#include "devicesTempSensor"
+#include "settings/HwInterfaces.h"
+#include "devices/sensors/TempSensor.h"
+#include "devices/lights/LightSignals.h"
 
 /* Wifi and MQTT Configuration, here it will be needed to set the credentials of the Wifi network the ESP32 
 is going to be connected to as well as the addess of the HiveMQ Server that's going to be used in order to
@@ -20,14 +24,25 @@ const char* topic_periods = "esiot-2024";
 periodically receive messages in oreder to check the connection status*/
 const char* topic_connection = "esiot-2024";
 
-unsigned long lastMsgTime = 0;
+/*Devices*/
+Sensor* tempSensor;
+Sensor* sonar;
+LightSignals* lightSignals;
 
+unsigned long lastMsgTime = 0;
+double temperature;
+
+SemaphoreHandle_t mqttMutex;
 TaskHandle_t Task1;
 
 /* Creation of an MQTT client instance */
 MQTTClientConnection* mqttClient;
 
 void setup() {
+    tempSensor = new TempSensor(TEMP_SENSOR_PIN);
+    sonar = new Sonar(SONAR_TRIG,SONAR_ECHO);
+    lightSignals = new LightSignals(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
+    mqttMutex = xSemaphoreCreateMutex();
     Serial.begin(115200);
     mqttClient = new MQTTClientConnection(
         wifi_ssid, 
@@ -40,17 +55,22 @@ void setup() {
 }
 
 void Task1code(void* parameter){
-  for(;;){
-    //Keeps alive MQTT Connection
-    mqttClient->ensureConnected(); 
-    unsigned long now = millis();
-    
-    if (now - lastMsgTime > 10000) {
-        lastMsgTime = now;
-        char message[50];
-        snprintf(message, sizeof(message), "Hello world #%lu", now / 1000);
-        mqttClient->publishMessage(topic_temperatures, message);
-    }
-    vTaskDelay(100 / portTICK_PERIOD_MS);  // 100 ms delay
-  } 
+    for(;;){
+        temperature = tempSensor->sense();
+        if (xSemaphoreTake(mqttMutex, portMAX_DELAY)) {
+            //Keeps alive MQTT Connection
+            mqttClient->ensureConnected(); 
+            unsigned long now = millis();
+            
+            
+            if (now - lastMsgTime > 10000) {
+                lastMsgTime = now;
+                char message[50];
+                snprintf(message, sizeof(message), "Hello world #%lu", now / 1000);
+                mqttClient->publishMessage(topic_temperatures, message);
+            }
+            xSemaphoreGive(mqttMutex);            
+        }
+        vTaskDelay(100 / portTICK_PERIOD_MS);  // 100 ms delay
+    } 
 }
