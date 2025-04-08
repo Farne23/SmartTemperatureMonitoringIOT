@@ -9,7 +9,6 @@ void MQTTClientConnection::begin() {
 
     // Disabilita la verifica del certificato (solo per test!)
     espClient.setInsecure(); 
-
     client.setServer(mqtt_server, 8883);
 }
 

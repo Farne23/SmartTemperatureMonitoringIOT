@@ -1,4 +1,4 @@
-package communication;
+package communicationMQTT;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -80,6 +80,7 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
             if (c.succeeded()) {
                 log("Connected successfully");
                 client.publishHandler(
+                		//Handler for temperatures messages
                 		s -> {				
 							System.out.println("New message in topic: " + s.topicName());
 					        System.out.println("Content (as string): " + s.payload().toString());

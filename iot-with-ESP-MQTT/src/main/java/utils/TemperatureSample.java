@@ -1,12 +1,12 @@
 package utils;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class TemperatureSample {
-	private final Date date;
+	private final LocalDate date;
 	private final double temperature;
 	
-	public TemperatureSample(Date date, double temperature) {
+	public TemperatureSample(LocalDate date, double temperature) {
 		this.temperature = temperature;
 		this.date = date;
 	}
