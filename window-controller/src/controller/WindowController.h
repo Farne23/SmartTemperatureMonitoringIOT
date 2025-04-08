@@ -36,7 +36,8 @@ class WindowController {
         double getTunerPerc();
         bool getDashboardComm();
         void setDashboardOn();
-        
+        void displayMan(double perc, double temp);
+        void displayAuto (double perc);
 };
 
 #endif

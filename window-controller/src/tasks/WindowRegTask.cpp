@@ -13,6 +13,7 @@ void WindowRegTask::tick() {
         else {
             this->controller->setPerc(this->controller->getAutoPerc());
         }
+        this->controller->displayAuto(this->controller->getAutoPerc());
     }
     else if (this->controller->getMode() == MANUAL) {
         double temp = this->controller->getTemp();
@@ -23,10 +24,10 @@ void WindowRegTask::tick() {
             this->controller->setDashboardOn();
         }
 
-        if (this->controller->getDashboardComm()) {
-            this->controller->setPerc(perc);
-        } else {
-            this->controller->setPerc(this->controller->getTunerPerc());
+        if (!this->controller->getDashboardComm()) {
+            perc = this->controller->getTunerPerc();
         }
+        this->controller->setPerc(perc);
+        this->controller->displayMan(perc, temp);
     }
 }

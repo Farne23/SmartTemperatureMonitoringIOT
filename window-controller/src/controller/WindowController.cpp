@@ -65,3 +65,11 @@ bool WindowController::getDashboardComm() {
 void WindowController::setDashboardOn() {
     this->dashboardComm = true;
 }
+
+void WindowController::displayMan(double perc, double temp) {
+    this->display->displayMan(perc, temp);
+}
+
+void WindowController::displayAuto (double perc) {
+    this->display->displayAuto(perc);
+}

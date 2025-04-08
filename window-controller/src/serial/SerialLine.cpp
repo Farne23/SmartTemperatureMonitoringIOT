@@ -27,7 +27,7 @@ void SerialLine::getData()
             char* endptr = nullptr;
             this->temp = strtod(content.substring(1).c_str(), &endptr);
         }
-        if (text[0] = 'P')
+        if (text[0] == 'P')
         {
             char* endptr = nullptr;
             if (text[1] == 'M') {
