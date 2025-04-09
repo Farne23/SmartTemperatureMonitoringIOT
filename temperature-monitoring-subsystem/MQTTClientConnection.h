@@ -17,6 +17,8 @@ public:
     void ensureConnected();
     //Publishes a given message on a given topic
     void publishMessage( const char* topic, const char* message);
+    //Enables the MQTT client to handle it'asynchronous behaviour.
+    void loop();
 
 private:
     void connectWiFi();
