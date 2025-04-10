@@ -50,12 +50,43 @@ void MQTTClientConnection::publishMessage(const char* topic, const char* message
     client.publish(topic, message);
 }
 
-
 void MQTTClientConnection::callback(char* topic, byte* payload, unsigned int length) {
-  Serial.println(String("Message arrived on [") + topic + "] len: " + length );
+    Serial.println(String("Message arrived on [") + topic + "] len: " + length );
+    if(strcmp(topic, topic_connection) == 0){
+        communicationOk = true;
+        lastMsgTime = millis();
+    }else if(strcmp(topic, topic_periods) == 0){
+        String payloadStr;
+        for (unsigned int i = 0; i < length; i++) {
+            payloadStr += (char)payload[i];
+        }
+        int value = payloadStr.toInt();
+        period = value;
+        newPeriodAvailable = true;
+    }
 }
 
-void MQTTClientConnection::subscripeToTopics(char* topic_periods, char* topic_connection){
-    client.subscribe(topic_periods);
-    client.subscribe(topic_connection);
+void MQTTClientConnection::subscripeToTopics(char* topic_periods, char* topic_connection){ 
+    this.topic_connection = topic_connection;
+    this.topic_periods = topic_periods;
+    client.subscribe(this.topic_periods);
+    client.subscribe(this.topic_connection);
+    client.setCallback(callback);
+}
+
+bool MQTTClientConnection::newPeriodAvailable(){
+    return this.newPeriodAvailable;
+}
+
+int MQTTClientConnection::getPeriod(){
+    this.newPeriodAvailable=false;
+    return period;
+}
+
+bool MQTTClientConnection::getConnectionStatus(){
+    if(lastMsgTime + MAX_WAITING_TIME < millis()){
+        return false;
+    }else{
+        return true;
+    }
 }

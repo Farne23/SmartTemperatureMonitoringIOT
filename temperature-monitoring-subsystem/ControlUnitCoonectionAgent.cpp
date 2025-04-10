@@ -2,6 +2,8 @@
 ControlUnitConnectionAgent::ControlUnitConnectionAgent(const char* ssid, const char* password, const char* server, const char* username, const char* mqtt_password) {
     mqttClient = new MQTTClientConnection(ssid, password, server, username, mqtt_password);
     mqttClient.begin()
+    configTime(gmtOffset_sec, daylightOffset_sec, "pool.ntp.org");
+    Serial.println(&timeinfo, "Now it's %A, %B %d %Y %H:%M:%S");
 }
 
 void ControlUnitConnectionAgent::setTopics(char* temperature_topic, char* connection_topic, char* periods_topic){
@@ -18,14 +20,14 @@ void ControlUnitConnectionAgent::loop() {
     mqttClient.ensureConnected();
 }
 
-double ControlUnitConnectionAgent::newPeriodAvailable() {
-
+bool ControlUnitConnectionAgent::newPeriodAvailable() {
+    return mqttClient.newPeriodAvailable();
 }
 
-double ControlUnitConnectionAgent::getPeriod() {
-
+int ControlUnitConnectionAgent::getPeriod() {
+    return mqttClient.getPeriod();
 }
 
-boolean ControlUnitConnectionAgent::getConnectionStatus() {
-
+bool ControlUnitConnectionAgent::getConnectionStatus() {
+    return mqttClient.getConnectionStatus();
 }
