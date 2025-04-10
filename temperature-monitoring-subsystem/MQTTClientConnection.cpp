@@ -49,3 +49,13 @@ void MQTTClientConnection::publishMessage(const char* topic, const char* message
     Serial.println(String("Publishing: ") + message);
     client.publish(topic, message);
 }
+
+
+void MQTTClientConnection::callback(char* topic, byte* payload, unsigned int length) {
+  Serial.println(String("Message arrived on [") + topic + "] len: " + length );
+}
+
+void MQTTClientConnection::subscripeToTopics(char* topic_periods, char* topic_connection){
+    client.subscribe(topic_periods);
+    client.subscribe(topic_connection);
+}

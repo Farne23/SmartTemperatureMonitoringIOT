@@ -6,11 +6,11 @@ ControlUnitConnectionAgent::ControlUnitConnectionAgent(const char* ssid, const c
 
 void ControlUnitConnectionAgent::setTopics(char* temperature_topic, char* connection_topic, char* periods_topic){
     char* temperature_topic = temperature_topic; 
-    char* connection_topic = connection_topic;
-    char* periods_topic = periods_topic;
+    mqttClient.setTopics(periods_topic,connection_topic);
 }
 
 void ControlUnitConnectionAgent::sendTemperature(double temperature) {
+    //QUa andrà aggiunta una formattazione coerente dell'orario.
     mqttClient.publishMessage(temperature_topic,"Temperatura");
 }
 

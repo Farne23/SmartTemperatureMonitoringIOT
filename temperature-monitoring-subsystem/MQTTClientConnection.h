@@ -19,16 +19,23 @@ public:
     void publishMessage( const char* topic, const char* message);
     //Enables the MQTT client to handle it'asynchronous behaviour.
     void loop();
+    //Subrscribes the client to the topics from wich it's going to receive infos via MQTT
+    void subscripeToTopics(const char* topic_periods, const char* topic_connection);
 
 private:
     void connectWiFi();
     void reconnectMQTT();
+    void callback();
 
     const char* ssid;
     const char* password;
     const char* mqtt_server;
     const char* mqtt_user;
     const char* mqtt_pass;
+
+    
+    char* connection_topic;
+    char* periods_topic;
 
     WiFiClientSecure espClient;
     PubSubClient client;

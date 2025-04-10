@@ -15,8 +15,6 @@ class ControlUnitConnectionAgent : public ControlUnitInteface{
     private:
         MQTTClientConnection* mqttClient;
         char* temperature_topic; 
-        char* connection_topic;
-        char* periods_topic;
     }
 
 #endif
