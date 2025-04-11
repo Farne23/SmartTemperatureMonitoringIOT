@@ -2,7 +2,7 @@
 
 #define AUTO_LINE1 "XXX% AUTO"
 #define AUTO_LINE2 ""
-#define MAN_LINE1 "XXX% AUTO"
+#define MAN_LINE1 "XXX% MAN"
 #define MAN_LINE2 "XXX °C"
 
 DisplayImpl::DisplayImpl(){
