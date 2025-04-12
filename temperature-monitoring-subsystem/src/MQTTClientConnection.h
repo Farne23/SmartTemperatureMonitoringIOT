@@ -22,16 +22,20 @@ public:
     //Enables the MQTT client to handle it'asynchronous behaviour.
     void loop();
     //Subrscribes the client to the topics from wich it's going to receive infos via MQTT
-    void subscripeToTopics(const char* topic_periods, const char* topic_connection);
+    void subscribeToTopics(char* periods_topic, char* connection_topic);
     //Returns true if a new sampling period has been comunicated from the controlunit
     bool newPeriodAvailable();
-    //Returns the last period sent my the control unit
+    //Returns the last period sent my the control unit.
     int getPeriod();
+    //Returns true if the connection is certified to be still on, false otherwise.
+    bool getConnectionStatus();
 
+    void callback(const char* topic, byte* payload, unsigned int length);
+
+    static MQTTClientConnection* instance; 
 private:
     void connectWiFi();
     void reconnectMQTT();
-    void callback();
 
     const char* ssid;
     const char* password;
@@ -45,7 +49,8 @@ private:
 
     long lastMsgTime;
     int period;
-    bool newPeriodAvailable = false;
+    bool periodAvailable = false;
+    bool communicationOk = false;
 
     WiFiClientSecure espClient;
     PubSubClient client;

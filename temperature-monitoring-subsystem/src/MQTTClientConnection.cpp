@@ -1,5 +1,7 @@
 #include "MQTTClientConnection.h"
 
+MQTTClientConnection* MQTTClientConnection::instance = nullptr;
+
 MQTTClientConnection::MQTTClientConnection(const char* ssid, const char* password, const char* server, const char* username, const char* mqtt_password)
     : ssid(ssid), password(password), mqtt_server(server), mqtt_user(username), mqtt_pass(mqtt_password), client(espClient) {}
 
@@ -10,6 +12,7 @@ void MQTTClientConnection::begin() {
     // Disabilita la verifica del certificato (solo per test!)
     espClient.setInsecure(); 
     client.setServer(mqtt_server, 8883);
+    MQTTClientConnection::instance = this;
 }
 
 void MQTTClientConnection::connectWiFi() {
@@ -50,36 +53,42 @@ void MQTTClientConnection::publishMessage(const char* topic, const char* message
     client.publish(topic, message);
 }
 
-void MQTTClientConnection::callback(char* topic, byte* payload, unsigned int length) {
+void MQTTClientConnection::callback(const char* topic, byte* payload, unsigned int length) {
     Serial.println(String("Message arrived on [") + topic + "] len: " + length );
-    if(strcmp(topic, topic_connection) == 0){
+    if(strcmp(topic, this->connection_topic) == 0){
         communicationOk = true;
         lastMsgTime = millis();
-    }else if(strcmp(topic, topic_periods) == 0){
+    }else if(strcmp(topic, this->periods_topic) == 0){
         String payloadStr;
         for (unsigned int i = 0; i < length; i++) {
             payloadStr += (char)payload[i];
         }
         int value = payloadStr.toInt();
         period = value;
-        newPeriodAvailable = true;
+        periodAvailable = true;
     }
 }
 
-void MQTTClientConnection::subscripeToTopics(char* topic_periods, char* topic_connection){ 
-    this.topic_connection = topic_connection;
-    this.topic_periods = topic_periods;
-    client.subscribe(this.topic_periods);
-    client.subscribe(this.topic_connection);
-    client.setCallback(callback);
+void mqttCallback(char* topic, byte* payload, unsigned int length) {
+    if (MQTTClientConnection::instance != nullptr) {
+        MQTTClientConnection::instance->callback(topic, payload, length);
+    }
+}
+
+void MQTTClientConnection::subscribeToTopics(char* periods_topic, char* connection_topic){ 
+    this->connection_topic = connection_topic;
+    this->periods_topic = periods_topic;
+    client.subscribe(this->periods_topic);
+    client.subscribe(this->connection_topic);
+    client.setCallback(mqttCallback);
 }
 
 bool MQTTClientConnection::newPeriodAvailable(){
-    return this.newPeriodAvailable;
+    return this->periodAvailable;
 }
 
 int MQTTClientConnection::getPeriod(){
-    this.newPeriodAvailable=false;
+    this->periodAvailable=false;
     return period;
 }
 

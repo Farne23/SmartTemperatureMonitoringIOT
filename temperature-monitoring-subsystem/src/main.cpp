@@ -1,5 +1,4 @@
 #include "MQTTClientConnection.h"
-#include "devicesTempSensor"
 #include "settings/HwInterfaces.h"
 #include "devices/sensors/TempSensor.h"
 #include "devices/lights/LightSignals.h"
@@ -38,21 +37,6 @@ TaskHandle_t Task1;
 /* Creation of an MQTT client instance */
 MQTTClientConnection* mqttClient;
 
-void setup() {
-    tempSensor = new TempSensor(TEMP_SENSOR_PIN);
-    sonar = new Sonar(SONAR_TRIG,SONAR_ECHO);
-    lightSignals = new LightSignals(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
-    mqttMutex = xSemaphoreCreateMutex();
-    Serial.begin(115200);
-    mqttClient = new MQTTClientConnection(
-        wifi_ssid, 
-        wifi_password, 
-        mqtt_server, 
-        mqtt_username, 
-        mqtt_password);
-    mqttClient.begin();
-    xTaskCreatePinnedToCore(Task1code,"Task1",10000,NULL,1,&Task1,0);  
-}
 
 void Task1code(void* parameter){
     for(;;){
@@ -73,4 +57,24 @@ void Task1code(void* parameter){
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);  // 100 ms delay
     } 
+}
+
+void setup() {
+    tempSensor = new TempSensor(TEMP_SENSOR_PIN);
+    lightSignals = new LightSignals(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
+    mqttMutex = xSemaphoreCreateMutex();
+    Serial.begin(115200);
+    mqttClient = new MQTTClientConnection(
+        wifi_ssid, 
+        wifi_password, 
+        mqtt_server, 
+        mqtt_username, 
+        mqtt_password);
+    mqttClient->begin();
+    xTaskCreatePinnedToCore(Task1code,"Task1",10000,NULL,1,&Task1,0);  
+}
+
+void loop() {
+    // anche vuota, basta che esista
+    vTaskDelay(1000 / portTICK_PERIOD_MS); // evita che vada in tight loop
 }

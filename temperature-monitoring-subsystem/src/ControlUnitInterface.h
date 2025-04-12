@@ -6,9 +6,11 @@ public:
     virtual void sendTemperature(double temperature) = 0;
     virtual int getPeriod() = 0;
     virtual bool newPeriodAvailable() = 0;
-    virtual void loop();
+    virtual void loop() = 0;
     virtual bool getConnectionStatus() = 0;
-    virtual ~ControlUnitInterface() {}
+
+     
+    virtual ~ControlUnitInterface() {} 
 };
 
 #endif
