@@ -22,7 +22,7 @@ public:
     //Enables the MQTT client to handle it'asynchronous behaviour.
     void loop();
     //Subrscribes the client to the topics from wich it's going to receive infos via MQTT
-    void subscribeToTopics(char* periods_topic, char* connection_topic);
+    void subscribeToTopics(const char* periods_topic, const char* connection_topic);
     //Returns true if a new sampling period has been comunicated from the controlunit
     bool newPeriodAvailable();
     //Returns the last period sent my the control unit.
@@ -44,8 +44,8 @@ private:
     const char* mqtt_pass;
 
     
-    char* connection_topic;
-    char* periods_topic;
+    const char* connection_topic;
+    const char* periods_topic;
 
     long lastMsgTime;
     int period;

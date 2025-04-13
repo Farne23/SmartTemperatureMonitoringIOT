@@ -75,7 +75,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     }
 }
 
-void MQTTClientConnection::subscribeToTopics(char* periods_topic, char* connection_topic){ 
+void MQTTClientConnection::subscribeToTopics(const char* periods_topic,const char* connection_topic){ 
     this->connection_topic = connection_topic;
     this->periods_topic = periods_topic;
     client.subscribe(this->periods_topic);

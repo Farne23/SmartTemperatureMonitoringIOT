@@ -1,4 +1,5 @@
-#include "MQTTClientConnection.h"
+#include "ControlUnitConnectionAgent.h"
+#include "ControlUnitInterface.h"
 #include "settings/HwInterfaces.h"
 #include "devices/sensors/TempSensor.h"
 #include "devices/lights/LightSignals.h"
@@ -15,13 +16,13 @@ const char* mqtt_password = "12345678aA";
 
 /*Topic in wich the temperature monitroing subsytem is going
  to publish the temperature values sensed*/
-const char* topic_temperatures = "esiot-2024";
+const char* temperatures_topic = "esiot-2024";
 /*Topic where the temperature monitroing subsytem is going 
-to receive the frequency to wich the temperature will have to be measuerd*/
-const char* topic_periods = "esiot-2024";
+to receive the frequency to wich the temperature will have to be measured*/
+const char* periods_topic = "esiot-2024";
 /*Topic where the temperature monitroing subsytem is going to 
 periodically receive messages in oreder to check the connection status*/
-const char* topic_connection = "esiot-2024";
+const char* connection_topic = "esiot-2024";
 
 /*Devices*/
 Sensor* tempSensor;
@@ -30,51 +31,62 @@ LightSignals* lightSignals;
 
 unsigned long lastMsgTime = 0;
 double temperature;
+int period;
 
 SemaphoreHandle_t mqttMutex;
 TaskHandle_t Task1;
+TaskHandle_t Task2;
 
 /* Creation of an MQTT client instance */
-MQTTClientConnection* mqttClient;
+ControlUnitInterface* mqttClient;
 
 
-void Task1code(void* parameter){
+void TaskTemperaturecode(void* parameter){
     for(;;){
         temperature = tempSensor->sense();
         if (xSemaphoreTake(mqttMutex, portMAX_DELAY)) {
-            //Keeps alive MQTT Connection
-            mqttClient->ensureConnected(); 
-            unsigned long now = millis();
-            
-            
-            if (now - lastMsgTime > 10000) {
-                lastMsgTime = now;
-                char message[50];
-                snprintf(message, sizeof(message), "Hello world #%lu", now / 1000);
-                mqttClient->publishMessage(topic_temperatures, message);
+            mqttClient->ensureConnected();
+            if(mqttClient->getConnectionStatus()){
+                mqttClient->sendTemperature(temperature); 
+                period = mqttClient->getPeriod();
             }
             xSemaphoreGive(mqttMutex);            
         }
-        vTaskDelay(100 / portTICK_PERIOD_MS);  // 100 ms delay
+        vTaskDelay(period / portTICK_PERIOD_MS); 
     } 
+}
+
+void TaskCheckConnectionCode(void *parameter){
+    for(;;){
+        if (xSemaphoreTake(mqttMutex, portMAX_DELAY)) {
+            if(!mqttClient->getConnectionStatus()){
+                lightSignals->signalProblems();
+            }else{
+                lightSignals->signalWorking();
+            }
+            xSemaphoreGive(mqttMutex);     
+        }
+        vTaskDelay((period/2) / portTICK_PERIOD_MS); 
+    }
 }
 
 void setup() {
     tempSensor = new TempSensor(TEMP_SENSOR_PIN);
     lightSignals = new LightSignals(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
+    lightSignals->signalWorking();
     mqttMutex = xSemaphoreCreateMutex();
     Serial.begin(115200);
-    mqttClient = new MQTTClientConnection(
+    mqttClient = new ControlUnitConnectionAgent(
         wifi_ssid, 
         wifi_password, 
         mqtt_server, 
         mqtt_username, 
         mqtt_password);
-    mqttClient->begin();
-    xTaskCreatePinnedToCore(Task1code,"Task1",10000,NULL,1,&Task1,0);  
+    mqttClient->setTopics(temperatures_topic,connection_topic,periods_topic);
+    xTaskCreatePinnedToCore(TaskTemperaturecode,"Task1",10000,NULL,1,&Task1,0);  
+    xTaskCreatePinnedToCore(TaskCheckConnectionCode,"Task2",10000,NULL,1,&Task2,0); 
 }
 
 void loop() {
-    // anche vuota, basta che esista
-    vTaskDelay(1000 / portTICK_PERIOD_MS); // evita che vada in tight loop
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
 }

@@ -12,9 +12,9 @@ public:
     void sendTemperature(double temperature) override;
     int getPeriod() override;
     bool newPeriodAvailable() override;
-    void loop() override;
+    void ensureConnected() override;
     bool getConnectionStatus() override;
-    void setTopics(char* temperature_topic, char* connection_topic, char* periods_topic);
+    void setTopics(const char* temperature_topic,const char* connection_topic,const char* periods_topic) override;
 
 private:
     MQTTClientConnection* mqttClient;
