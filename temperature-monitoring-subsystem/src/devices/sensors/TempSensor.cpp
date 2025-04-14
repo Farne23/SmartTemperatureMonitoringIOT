@@ -1,15 +1,17 @@
 #include "TempSensor.h"
 #include <Arduino.h>
 
-#define TO_VOLT (3.3/4095)
+#define TO_VOLT (3.3 / 4095)
 #define TO_DEG 100
 
-TempSensor::TempSensor(int pin) {
+TempSensor::TempSensor(int pin)
+{
     this->pin = pin;
     pinMode(pin, INPUT);
 }
 
-double TempSensor::sense() {
+double TempSensor::sense()
+{
     Serial.println(this->pin);
     // value read by PWM signal
     int temp_adc_val;

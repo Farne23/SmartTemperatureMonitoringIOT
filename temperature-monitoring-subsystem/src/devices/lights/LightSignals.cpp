@@ -3,17 +3,20 @@
 
 /*Implementation of LigthSignal interface */
 
-LightSignals::LightSignals(Led* greenLed, Led* redLed){
+LightSignals::LightSignals(Led *greenLed, Led *redLed)
+{
     this->greenLed = greenLed;
     this->redLed = redLed;
-}   
+}
 
-void LightSignals::signalWorking(){
+void LightSignals::signalWorking()
+{
     greenLed->switchOn();
     redLed->switchOff();
 }
 
-void LightSignals::signalProblems(){
+void LightSignals::signalProblems()
+{
     greenLed->switchOff();
     redLed->switchOn();
 }

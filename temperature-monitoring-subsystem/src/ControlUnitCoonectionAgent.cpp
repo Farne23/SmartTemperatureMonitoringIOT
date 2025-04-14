@@ -19,9 +19,9 @@ ControlUnitConnectionAgent::~ControlUnitConnectionAgent()
 
 void ControlUnitConnectionAgent::setTopics(const char *temperature_topic, const char *connection_topic, const char *periods_topic)
 {
-    //Saves the topic that the temperatures are going to be sent to
+    // Saves the topic that the temperatures are going to be sent to
     this->temperature_topic = temperature_topic;
-    //Communicates to the actual client the topics it has to listen for
+    // Communicates to the actual client the topics it has to listen for
     mqttClient->subscribeToTopics(periods_topic, connection_topic);
 }
 

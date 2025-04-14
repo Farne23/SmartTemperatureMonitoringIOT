@@ -19,6 +19,9 @@ void MQTTClientConnection::begin()
     reconnectMQTT();
     // Saving the instance of this object, needed later on to make the callback work.
     MQTTClientConnection::instance = this;
+
+    // Begins the first countdown for the connection periodc check
+    lastMsgTime = millis();
 }
 
 void MQTTClientConnection::connectWiFi()

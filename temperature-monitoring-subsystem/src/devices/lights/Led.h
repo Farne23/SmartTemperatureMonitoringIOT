@@ -5,14 +5,16 @@
 
 /* Interface rappresenting a simple led, manageable trough a pin,
  implementation of the Ligth interface*/
-class Led: public Light { 
+class Led : public Light
+{
 public:
   Led();
   Led(int pin);
   void switchOn();
-  void switchOff();    
+  void switchOff();
+
 private:
-  int pin;  
+  int pin;
 };
 
 #endif

@@ -3,12 +3,14 @@
 
 #include "Sensor.h"
 
-class TempSensor: public Sensor {
-    public:
-        TempSensor(int pin);
-        double sense();
-    private:
-        int pin;
+class TempSensor : public Sensor
+{
+public:
+    TempSensor(int pin);
+    double sense();
+
+private:
+    int pin;
 };
 
 #endif

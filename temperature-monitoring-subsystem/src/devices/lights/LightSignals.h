@@ -4,17 +4,19 @@
 #include "Led.h"
 
 /*Interface for the management of the ligth signals given to the users.
-The instructions given to this component trough its methods are then 
+The instructions given to this component trough its methods are then
 converted as switch on or switch off signals for the leds */
 
-class LightSignals {
+class LightSignals
+{
 public:
-    LightSignals(Led* greenLed, Led* redLed);
+    LightSignals(Led *greenLed, Led *redLed);
     void signalWorking();
-    void signalProblems(); 
+    void signalProblems();
+
 private:
-    Led* greenLed;
-    Led* redLed;
+    Led *greenLed;
+    Led *redLed;
 };
 
 #endif

@@ -3,23 +3,27 @@
 
 #define DEFAULT_PIN 3
 
-/*Basic implementation of a class rappresenting a Led 
+/*Basic implementation of a class rappresenting a Led
 wich can be managed through a specified pin*/
 
-Led::Led(){
+Led::Led()
+{
   this->pin = DEFAULT_PIN;
-  pinMode(pin,OUTPUT);
+  pinMode(pin, OUTPUT);
 }
 
-Led::Led(int pin){
+Led::Led(int pin)
+{
   this->pin = pin;
-  pinMode(pin,OUTPUT);
+  pinMode(pin, OUTPUT);
 }
 
-void Led::switchOn(){
-  digitalWrite(pin,HIGH);
+void Led::switchOn()
+{
+  digitalWrite(pin, HIGH);
 }
 
-void Led::switchOff(){
-  digitalWrite(pin,LOW);
+void Led::switchOff()
+{
+  digitalWrite(pin, LOW);
 };

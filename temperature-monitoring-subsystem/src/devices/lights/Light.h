@@ -2,10 +2,11 @@
 #define __LIGHT__
 
 /* Interface used to rappresent a simple light*/
-class Light {
+class Light
+{
 public:
   virtual void switchOn() = 0;
-  virtual void switchOff() = 0;    
+  virtual void switchOff() = 0;
 };
 
 #endif
