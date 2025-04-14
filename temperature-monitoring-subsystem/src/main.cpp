@@ -81,7 +81,7 @@ void setup() {
     //Initiliazation of the HW devices
     tempSensor = new TempSensor(TEMP_SENSOR_PIN);
     lightSignals = new LightSignals(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
-    lightSignals->signalWorking();
+    lightSignals->signalProblems();
 
     //Creation of the mutex protecting the MQTT client.
     mqttMutex = xSemaphoreCreateMutex();
