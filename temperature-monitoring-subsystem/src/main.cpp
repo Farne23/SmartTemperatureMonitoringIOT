@@ -13,6 +13,7 @@ const char* wifi_password = "12345678";
 const char* mqtt_server = "d4d5510d5dd54ceea93cb08348cdbb8d.s1.eu.hivemq.cloud";
 const char* mqtt_username = "MicheleFarneti";
 const char* mqtt_password = "12345678aA";
+const int mqtt_port = 8883;
 
 /*Topic in wich the temperature monitroing subsytem is going
  to publish the temperature values sensed*/
@@ -34,14 +35,14 @@ double temperature;
 int period;
 
 SemaphoreHandle_t mqttMutex;
-TaskHandle_t Task1;
+TaskHandle_t TaskTemperature;
 TaskHandle_t Task2;
 
 /* Creation of an MQTT client instance */
 ControlUnitInterface* mqttClient;
 
 void log(const char* message){
-    Serial.write(message);
+    Serial.println(message);
 }
 
 void TaskTemperaturecode(void* parameter){
@@ -74,22 +75,30 @@ void TaskCheckConnectionCode(void *parameter){
 }
 
 void setup() {
-    log("Temperature monitroing subsystem setup started...");
     Serial.begin(115200);
+    log("Temperature monitoring subsystem setup started...");
+
+    //Initiliazation of the HW devices
     tempSensor = new TempSensor(TEMP_SENSOR_PIN);
     lightSignals = new LightSignals(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
     lightSignals->signalWorking();
+
+    //Creation of the mutex protecting the MQTT client.
     mqttMutex = xSemaphoreCreateMutex();
-    Serial.begin(115200);
+
+    //Creation of the MQTT client interface and topics setup.
     mqttClient = new ControlUnitConnectionAgent(
         wifi_ssid, 
         wifi_password, 
         mqtt_server, 
         mqtt_username, 
-        mqtt_password);
+        mqtt_password,
+        mqtt_port
+    );
     mqttClient->setTopics(temperatures_topic,connection_topic,periods_topic);
-    xTaskCreatePinnedToCore(TaskTemperaturecode,"Task1",10000,NULL,1,&Task1,0);  
-    xTaskCreatePinnedToCore(TaskCheckConnectionCode,"Task2",10000,NULL,1,&Task2,0); 
+    xTaskCreatePinnedToCore(TaskTemperaturecode,"Task1",10000,NULL,1,&TaskTemperature,0); 
+
+    //xTaskCreatePinnedToCore(TaskCheckConnectionCode,"Task2",10000,NULL,1,&Task2,0); 
     log("Setup completed!");
 }
 

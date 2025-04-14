@@ -6,7 +6,7 @@
 
 class ControlUnitConnectionAgent : public ControlUnitInterface {
 public:
-    ControlUnitConnectionAgent(const char* ssid, const char* password, const char* server, const char* username, const char* mqtt_password);
+    ControlUnitConnectionAgent(const char* ssid, const char* password, const char* server, const char* username, const char* mqtt_password, const int port);
     ~ControlUnitConnectionAgent();
 
     void sendTemperature(double temperature) override;

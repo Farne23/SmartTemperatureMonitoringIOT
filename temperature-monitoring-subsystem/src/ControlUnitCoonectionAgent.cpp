@@ -2,32 +2,31 @@
 #include <time.h>
 #include <Arduino.h>
 
-ControlUnitConnectionAgent::ControlUnitConnectionAgent(const char *ssid, const char *password, const char *server, const char *username, const char *mqtt_password)
+void log(const char *message)
 {
-    mqttClient = new MQTTClientConnection(ssid, password, server, username, mqtt_password);
+    Serial.println(message);
+}
+
+ControlUnitConnectionAgent::ControlUnitConnectionAgent(const char *ssid, const char *password, const char *server, const char *username, const char *mqtt_password, const int port)
+{
+    // Inizialization of the MQTT client
+    mqttClient = new MQTTClientConnection(ssid, password, server, username, mqtt_password, port);
     mqttClient->begin();
 
+    // Time getter configuration
     configTime(gmtOffset_sec, daylightOffset_sec, "pool.ntp.org");
-
-    struct tm timeinfo;
-    if (getLocalTime(&timeinfo))
-    {
-        Serial.println(&timeinfo, "Now it's %A, %B %d %Y %H:%M:%S");
-    }
-    else
-    {
-        Serial.println("Failed to obtain time");
-    }
 }
 
 ControlUnitConnectionAgent::~ControlUnitConnectionAgent()
 {
-    delete mqttClient; //
+    delete mqttClient;
 }
 
 void ControlUnitConnectionAgent::setTopics(const char *temperature_topic, const char *connection_topic, const char *periods_topic)
 {
+    //Saves the topic that the temperatures are going to be sent to
     this->temperature_topic = temperature_topic;
+    //Communicates to the actual client the topics it has to listen for
     mqttClient->subscribeToTopics(periods_topic, connection_topic);
 }
 
@@ -36,7 +35,7 @@ void ControlUnitConnectionAgent::sendTemperature(double temperature)
     struct tm timeinfo;
     if (getLocalTime(&timeinfo))
     {
-        char payload[128]; 
+        char payload[128];
 
         snprintf(payload, sizeof(payload),
                  "{\"time\":\"%04d-%02d-%02d %02d:%02d:%02d\", \"temperature\": %.2f}",
@@ -49,7 +48,7 @@ void ControlUnitConnectionAgent::sendTemperature(double temperature)
                  temperature);
 
         mqttClient->publishMessage(temperature_topic, payload);
-        Serial.println(payload); 
+        Serial.println(payload);
     }
     else
     {

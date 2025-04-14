@@ -12,7 +12,7 @@ This class will allow to subscribe to topics as well as to publish messages on t
 class MQTTClientConnection {
 public:
     //Creates an instance able to connect to an MQTT Server through given credentials after connectiong to a wifi network.
-    MQTTClientConnection(const char* ssid, const char* password, const char* server, const char* username, const char* mqtt_password);
+    MQTTClientConnection(const char* ssid, const char* password, const char* mqtt_server, const char* mqtt_username, const char* mqtt_password, const int mqtt_port);
     //Joins the given wifi networks and establishes a connection with the MQTT Server.
     void begin();
     //Checks the status of the MQTT Connection, evntually rejoining the server.
@@ -42,6 +42,7 @@ private:
     const char* mqtt_server;
     const char* mqtt_user;
     const char* mqtt_pass;
+    const int mqtt_port;
 
     
     const char* connection_topic;
