@@ -40,6 +40,9 @@ TaskHandle_t Task2;
 /* Creation of an MQTT client instance */
 ControlUnitInterface* mqttClient;
 
+void log(const char* message){
+    Serial.write(message);
+}
 
 void TaskTemperaturecode(void* parameter){
     for(;;){
@@ -71,6 +74,8 @@ void TaskCheckConnectionCode(void *parameter){
 }
 
 void setup() {
+    log("Temperature monitroing subsystem setup started...");
+    Serial.begin(115200);
     tempSensor = new TempSensor(TEMP_SENSOR_PIN);
     lightSignals = new LightSignals(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
     lightSignals->signalWorking();
@@ -85,8 +90,10 @@ void setup() {
     mqttClient->setTopics(temperatures_topic,connection_topic,periods_topic);
     xTaskCreatePinnedToCore(TaskTemperaturecode,"Task1",10000,NULL,1,&Task1,0);  
     xTaskCreatePinnedToCore(TaskCheckConnectionCode,"Task2",10000,NULL,1,&Task2,0); 
+    log("Setup completed!");
 }
 
 void loop() {
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
+
