@@ -113,8 +113,6 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
         vertx.setPeriodic(CONNECTION_KEEP_UP_TIME, id -> {
             System.out.println("Timer 1 - Ogni 5 secondi: " + System.currentTimeMillis());
           });
-
-     
 	}
 
 
