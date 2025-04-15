@@ -3,9 +3,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>esiot</groupId>
-  <artifactId>iot-with-ESP-MQTT</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <groupId>farneti-casadei</groupId>
+  <artifactId>control-unit-backend</artifactId>
+  <version>control-unit-backend</version>
 
   <name>iot-with-ESP-MQTT</name>
   <!-- FIXME change it to the project's website -->
@@ -73,6 +73,12 @@
 	    <groupId>org.json</groupId>
 	    <artifactId>json</artifactId>
 	    <version>20090211</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/io.github.java-native/jssc -->
+	<dependency>
+	    <groupId>io.github.java-native</groupId>
+	    <artifactId>jssc</artifactId>
+	    <version>2.9.6</version>
 	</dependency>
   </dependencies>
 

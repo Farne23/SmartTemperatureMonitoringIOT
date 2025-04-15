@@ -1,8 +1,9 @@
-package comm.serial;
+package communicationSerial;
 
 import java.util.concurrent.*;
+
+import communicationSerial.api.CommChannel;
 import jssc.*;
-import comm.serial.api.CommChannel;
 
 /**
  * Comm channel implementation based on serial port.

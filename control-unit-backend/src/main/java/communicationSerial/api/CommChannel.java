@@ -1,4 +1,4 @@
-package comm.serial.api;
+package communicationSerial.api;
 
 /**
  * Simple interface for an async msg communication channel
