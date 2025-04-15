@@ -117,4 +117,11 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 			}	
 		}	
 	}
+	
+	/*
+	 * 
+	 */
+	private int getOpenLevel(double temperature) {
+		return (int)Math.round((temperature-TEMPERATURE_THRESHOLD_NORMAL)*100/(TEMPERATURE_THRESHOLD_HOT-TEMPERATURE_THRESHOLD_NORMAL));
+	}
 }
