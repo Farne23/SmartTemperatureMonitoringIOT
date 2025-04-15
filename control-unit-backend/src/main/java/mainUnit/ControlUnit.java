@@ -24,6 +24,12 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	private static final double TEMPERATURE_THRESHOLD_NORMAL = 20;
 	private static final double TEMPERATURE_THRESHOLD_HOT = 22;
 	private static final long TOO_HOT_MAX_SECONDS = 7;
+	private static final int PERIOD_NORMAL = 3000;
+	private static final int PERIOD_HOT = 2000;
+	private static final int PERIOD_TOO_HOT = 1000;
+	private static String FREQUENCY_LINE_ADDRESS = "frequency.line";
+	private static String TEMPERATURES_LINE_ADDRESS = "temperatures.line";
+	private static String OPENLEVEL_LINE_ADDRESS = "openlevel.line";
 	
 	private LocalDateTime tooHotStartTime;
 	
@@ -46,7 +52,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 		 * It' going to receive json formatted temperature samples.
 		 * Once they will be read, it will try to add them to the temperatures stack
 		 * */
-		 vertx.eventBus().consumer("temperatures.line", message -> {
+		 vertx.eventBus().consumer(TEMPERATURES_LINE_ADDRESS, message -> {
 	            System.out.println("Messaggio ricevuto: " + message.body());
 				try {
 					JsonObject json = new JsonObject(message.body().toString());
@@ -75,6 +81,34 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 		return temperatures.size()>=MAX_HISTORY_SAMPLES;
 	}
 	
+	private void changeFrequency(int frequency) {
+		
+		/*vertx.eventBus().send("temperatures.line", 
+			    new JsonObject()
+			        .put("timestamp", LocalDateTime.now().toString())
+			        .put("temperature", 22.5)
+			);*/
+		vertx.eventBus().send(FREQUENCY_LINE_ADDRESS, frequency);		
+	}
+	
+	private void changeWindowOpenLevel(int openPercentage) {
+		
+		/*vertx.eventBus().send("temperatures.line", 
+			    new JsonObject()
+			        .put("timestamp", LocalDateTime.now().toString())
+			        .put("temperature", 22.5)
+			);*/
+		vertx.eventBus().send(OPENLEVEL_LINE_ADDRESS, openPercentage);		
+	}
+	
+	private void closeWindow() {
+		changeWindowOpenLevel(100);
+	}
+	
+	private void openWindow() {
+		changeWindowOpenLevel(0);
+	}
+	
 	/*
 	 * Updates the system's daily statistics 
 	 */
@@ -97,11 +131,11 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 			if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_NORMAL && systemState != SystemState.NORMAL) {
 				systemState = SystemState.NORMAL;
 				//CHIUDI FINESTRA
-				//COMUNICA FREQUENZA F1
+				changeFrequency(PERIOD_NORMAL);
 			} else if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_HOT && sample.getTemperature() > TEMPERATURE_THRESHOLD_NORMAL ) {
 				if(systemState != SystemState.HOT) {
 					systemState = SystemState.HOT;
-					//Comunica Frequenza
+					changeFrequency(PERIOD_HOT);
 				}
 				//Calcola Percentuale di apertura dalla temperatura
 				//Comunica percentuale
@@ -110,7 +144,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 				if(systemState!=SystemState.TOO_HOT) {
 					systemState = SystemState.TOO_HOT;
 					tooHotStartTime = sample.getDateTime();
-					//Comunica frequenza
+					changeFrequency(PERIOD_TOO_HOT);
 				}else if (tooHotStartTime.plusSeconds(TOO_HOT_MAX_SECONDS).isBefore(sample.getDateTime())) {
 					systemState = SystemState.ALARM;
 				}
@@ -119,7 +153,10 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	}
 	
 	/*
+	 * Returns the open level percentage of the window, proportionally to the temperature slot
+	 * for the HOT state. 
 	 * 
+	 * @param temperature
 	 */
 	private int getOpenLevel(double temperature) {
 		return (int)Math.round((temperature-TEMPERATURE_THRESHOLD_NORMAL)*100/(TEMPERATURE_THRESHOLD_HOT-TEMPERATURE_THRESHOLD_NORMAL));

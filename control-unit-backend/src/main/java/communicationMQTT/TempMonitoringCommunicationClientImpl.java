@@ -24,7 +24,9 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
 	
 	private static final String CONFIG_FILE_PATH = "/MQTTconfig.csv";
 	private static final int CONNECTION_KEEP_UP_TIME = 5000; //The period of the periodic meessage for communicating that connection is still on
-    private final String brokerAddress;
+	private static String FREQUENCY_BUS_ADDRESS = "frequency.line";
+	
+	private final String brokerAddress;
     private final int brokerPort;
     private final String username;
     private final String password;
@@ -102,8 +104,9 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
             }
         });  
         
-        
-        vertx.eventBus().consumer("period.line", message -> {
+        //Handler for messages sent by the control unit specifyng new periods
+        // for sampling temperature
+        vertx.eventBus().consumer(FREQUENCY_BUS_ADDRESS, message -> {
             System.out.println("Messaggio ricevuto: " + message.body());
             //message.reply("Ciao Sender, messaggio ricevuto!");
             setFrequency(Integer.parseInt(message.body().toString()));
@@ -111,7 +114,7 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
         
         //Periodic message to keep connection status up-
         vertx.setPeriodic(CONNECTION_KEEP_UP_TIME, id -> {
-            System.out.println("Timer 1 - Ogni 5 secondi: " + System.currentTimeMillis());
+            signalConnectionWorking();
           });
 	}
 
@@ -132,7 +135,7 @@ public class TempMonitoringCommunicationClientImpl extends AbstractVerticle impl
 	 * is still on
 	 */
 	private void signalConnectionWorking() {
-		publishMessage(periodsTopic, "Ok",MqttQoS.EXACTLY_ONCE);
+		publishMessage(connectionTopic, "Ok",MqttQoS.EXACTLY_ONCE);
 	}
 
 	/*
