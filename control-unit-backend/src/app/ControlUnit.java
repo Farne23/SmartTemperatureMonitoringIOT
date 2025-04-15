@@ -2,7 +2,6 @@
  * 
  */
 package app;
-import communication.MQTTAgent;
 
 import java.util.Optional;
 
@@ -20,8 +19,6 @@ public class ControlUnit {
 	 */
 	public static void main(String[] args) {
 		System.out.println("Ciao");
-		MQTTAgent testAgent = new MQTTAgent();
-		testAgent.start();
 	}
 
 }

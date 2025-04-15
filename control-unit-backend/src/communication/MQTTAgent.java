@@ -21,11 +21,11 @@ import java.util.Map;
  */
 public class MQTTAgent extends AbstractVerticle {
 
-    private static final String BROKER_ADDRESS = "d4d5510d5dd54ceea93cb08348cdbb8d.s1.eu.hivemq.cloud"; 
+    private static final String BROKER_ADDRESS = "broker.hivemq.com"; 
     private static final int BROKER_PORT = 1883;
-    private static final String TOPIC_NAME = "esiot-2024";
-    private static final String USERNAME = "MicheleFarneti";
-    private static final String PASSWORD = "12345678aA";
+    private static final String TOPIC_NAME = "test/hivemq";
+    private static final String USERNAME = "your_username";
+    private static final String PASSWORD = "your_password";
 
     private MqttClient client;
 
