@@ -1,0 +1,2 @@
+broker_address,port,username,password,topic_temperature,topic_period
+d4d5510d5dd54ceea93cb08348cdbb8d.s1.eu.hivemq.cloud,8883,MicheleFarneti,12345678aA,esiot-2024,esiot-2024
