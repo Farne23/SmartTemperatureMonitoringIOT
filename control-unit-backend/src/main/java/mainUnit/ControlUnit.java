@@ -102,11 +102,11 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	}
 	
 	private void closeWindow() {
-		changeWindowOpenLevel(100);
+		changeWindowOpenLevel(0);
 	}
 	
 	private void openWindow() {
-		changeWindowOpenLevel(0);
+		changeWindowOpenLevel(100);
 	}
 	
 	/*
@@ -130,17 +130,16 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 		if(systemState != SystemState.ALARM) {	
 			if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_NORMAL && systemState != SystemState.NORMAL) {
 				systemState = SystemState.NORMAL;
-				//CHIUDI FINESTRA
+				closeWindow();
 				changeFrequency(PERIOD_NORMAL);
 			} else if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_HOT && sample.getTemperature() > TEMPERATURE_THRESHOLD_NORMAL ) {
 				if(systemState != SystemState.HOT) {
 					systemState = SystemState.HOT;
 					changeFrequency(PERIOD_HOT);
 				}
-				//Calcola Percentuale di apertura dalla temperatura
-				//Comunica percentuale
+				changeWindowOpenLevel(getOpenLevel(sample.getTemperature()));
 			} else if (sample.getTemperature() > TEMPERATURE_THRESHOLD_HOT) {
-				//APRO FINESTRA
+				openWindow();
 				if(systemState!=SystemState.TOO_HOT) {
 					systemState = SystemState.TOO_HOT;
 					tooHotStartTime = sample.getDateTime();
