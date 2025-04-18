@@ -21,15 +21,15 @@ void setup()
   // Container intitialization
   controller = new WindowController();
   // Scheduler initialization
-  scheduler.init(50);
+  scheduler.init(100);
 
   // Window regulation task initialization
   Task *regTask = new WindowRegTask(controller);
-  regTask->init(100);
+  regTask->init(200);
 
   // Control panel task initialization
   Task *controlTask = new ControlPanelTask(controller);
-  controlTask->init(50);
+  controlTask->init(100);
 
   // Adding tasks to the scheduler
   scheduler.addTask(regTask);
