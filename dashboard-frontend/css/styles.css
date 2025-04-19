@@ -1,0 +1,103 @@
+/* Define standard variables and values for website */
+/* Use the variables */
+body {
+  background-color: white;
+  color: black;
+  font-size: 18px;
+}
+body main {
+  display: flex;
+  width: 100%;
+  /* Altezza: tutta la finestra */
+}
+body main .box {
+  flex: 1;
+  padding: 20px;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+}
+body main .left {
+  background-color: lightblue;
+  display: flex;
+  border-right: 1px solid black;
+}
+body main .left .stats-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+body main .left .stats-container .stats-box {
+  width: 100px;
+  height: 100px;
+  background-color: gray;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin: 20px;
+  border: 1px solid white;
+}
+body main .left svg {
+  margin-top: 40px;
+  border: 1px solid white;
+}
+body main .right {
+  background-color: lightcoral;
+  display: flex;
+  border-left: 1px solid black;
+}
+body main .right .window-status,
+body main .right .window-control {
+  padding: 20px;
+  text-align: center;
+  width: 130px;
+}
+body main .right .window-status h3,
+body main .right .window-control h3 {
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+body main .right .bar-container {
+  width: 100px;
+  height: 200px;
+  background: linear-gradient(180deg, #4caf50, #2e7d32);
+  border-radius: 10px;
+  position: relative;
+  margin: 0 auto;
+}
+body main .right .bar-container .bar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 0%;
+  background: azure;
+  border-radius: 10px 10px 0 0;
+  transition: height 0.4s ease;
+}
+body main .right .window-control input[type=range] {
+  -webkit-appearance: none;
+  width: 200px;
+  height: 15px;
+  background: #ddd;
+  border-radius: 5px;
+}
+body main .right .window-control input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+body main .right .window-control input[type=range]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+/*# sourceMappingURL=styles.css.map */

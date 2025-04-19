@@ -1,0 +1,124 @@
+/* Define standard variables and values for website */
+$bgcolor: white;
+$textcolor: black;
+$fgcolor: gray;
+$skycolor: azure;
+$fontsize: 18px;
+
+/* Use the variables */
+body {
+    background-color: $bgcolor;
+    color: $textcolor;
+    font-size: $fontsize;
+
+    main {
+        display: flex;
+        width: 100%;
+
+        /* Altezza: tutta la finestra */
+        .box {
+            flex: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .left {
+            background-color: lightblue;
+            display: flex;
+            border-right: 1px solid $textcolor;
+
+            .stats-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-evenly;
+
+                .stats-box {
+                    width: 100px;
+                    height: 100px;
+                    background-color: $fgcolor;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 10px;
+                    margin: 20px;
+                    border: 1px solid $bgcolor;
+                }
+            }
+
+            svg {
+                margin-top: 40px;
+                border: 1px solid $bgcolor;
+            }
+        }
+
+        .right {
+            background-color: lightcoral;
+            display: flex;
+            border-left: 1px solid $textcolor;
+
+            .window-status,
+            .window-control {
+                padding: 20px;
+                text-align: center;
+                width: 130px;
+
+                h3 {
+                    margin-bottom: 15px;
+                    font-size: 1.1em;
+                }
+            }
+
+            .bar-container {
+                width: 100px;
+                height: 200px;
+                background: linear-gradient(180deg, #4caf50, #2e7d32);
+                border-radius: 10px;
+                position: relative;
+                margin: 0 auto;
+
+                .bar {
+                    position: absolute;
+                    bottom: 0;
+                    width: 100%;
+                    height: 0%;
+                    background: $skycolor;
+                    border-radius: 10px 10px 0 0;
+                    transition: height 0.4s ease;
+                }
+            }
+
+            .window-control {
+                input[type="range"] {
+                    -webkit-appearance: none;
+                    width: 200px;
+                    height: 15px;
+                    background: #ddd;
+                    border-radius: 5px;
+                }
+
+                input[type="range"]::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    appearance: none;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: #4CAF50;
+                    cursor: pointer;
+                }
+
+                input[type="range"]::-moz-range-thumb {
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: #4CAF50;
+                    cursor: pointer;
+                }
+            }
+
+
+        }
+    }
+}

@@ -1,15 +1,58 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Smart Temperature Monitoring Dashboard</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta charset="UTF-8"/>
-        <link rel="style" href="css/styles.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script> <!-- Chart.JS script -->
-    </head>
-    <body>
-        <form></form>
-        <canvas id="tempChart" style="width:100%;max-width:700px"></canvas>
-        <script src="js/main.js" defer></script>
-    </body>
+
+<head>
+    <title>Smart Temperature Monitoring Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script><!-- D3.JS script -->
+</head>
+
+<body>
+    <header>
+        <h1>Smart temperature monitroing subsystem</h1>
+        <h2>System state: NORMAL</h2>
+    </header>
+    <main>
+        <div class="box left">
+            <!-- Contenuto di sinistra -->
+            <h2>Temperature Trend over time (°C)</h2>
+            <div class="stats-container">
+                <div class="stats-box">
+                    <p>Average</p>
+                    <p>37,8 °C</p>
+                </div>
+                <div class="stats-box">
+                    <p>Min</p>
+                    <p>37,8 °C</p>
+                </div>
+                <div class="stats-box">
+                    <p>Max</p>
+                    <p>37,8 °C</p>
+                </div>
+            </div>
+            <svg width="500" height="300"></svg>
+        </div>
+        <div class="box right">
+            <h2>Control Panel</h2>
+            <input type="button" value="SOLVE PROBLEM"/>
+            <input type="button" value="MANUAL STATE"/>
+            <div class="window-status">
+                <h3>Current Window Opening</h3>
+                <div class="bar-container">
+                    <div class="bar" id="currentLevel"></div>
+                </div>
+            </div>
+            
+            <div class="window-control">
+                <h3>Set Desired Opening Level</h3>
+                <input type="range" min="0" max="100" value="0" id="setLevelSlider">
+            </div>
+        </div>
+    </main>
+    <form></form>
+    <script src="js/main.js" defer></script>
+</body>
+
 </html>
