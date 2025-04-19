@@ -48,18 +48,22 @@ body main .right {
   display: flex;
   border-left: 1px solid black;
 }
-body main .right .window-status,
-body main .right .window-control {
+body main .right .controls-bar {
+  display: flex;
+  flex-direction: row;
+}
+body main .right .controls-bar .window-status,
+body main .right .controls-bar .window-control {
   padding: 20px;
   text-align: center;
   width: 130px;
 }
-body main .right .window-status h3,
-body main .right .window-control h3 {
+body main .right .controls-bar .window-status h3,
+body main .right .controls-bar .window-control h3 {
   margin-bottom: 15px;
   font-size: 1.1em;
 }
-body main .right .bar-container {
+body main .right .controls-bar .bar-container {
   width: 100px;
   height: 200px;
   background: linear-gradient(180deg, #4caf50, #2e7d32);
@@ -67,7 +71,7 @@ body main .right .bar-container {
   position: relative;
   margin: 0 auto;
 }
-body main .right .bar-container .bar {
+body main .right .controls-bar .bar-container .bar {
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -76,14 +80,18 @@ body main .right .bar-container .bar {
   border-radius: 10px 10px 0 0;
   transition: height 0.4s ease;
 }
-body main .right .window-control input[type=range] {
+body main .right .controls-bar .buttons-panel {
+  display: flex;
+  flex-direction: column;
+}
+body main .right .controls-bar .buttons-panel .window-control input[type=range] {
   -webkit-appearance: none;
   width: 200px;
   height: 15px;
   background: #ddd;
   border-radius: 5px;
 }
-body main .right .window-control input[type=range]::-webkit-slider-thumb {
+body main .right .controls-bar .buttons-panel .window-control input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 20px;
@@ -92,7 +100,7 @@ body main .right .window-control input[type=range]::-webkit-slider-thumb {
   background: #4CAF50;
   cursor: pointer;
 }
-body main .right .window-control input[type=range]::-moz-range-thumb {
+body main .right .controls-bar .buttons-panel .window-control input[type=range]::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;

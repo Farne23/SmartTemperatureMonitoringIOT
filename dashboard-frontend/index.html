@@ -36,18 +36,22 @@
         </div>
         <div class="box right">
             <h2>Control Panel</h2>
-            <input type="button" value="SOLVE PROBLEM"/>
-            <input type="button" value="MANUAL STATE"/>
-            <div class="window-status">
-                <h3>Current Window Opening</h3>
-                <div class="bar-container">
-                    <div class="bar" id="currentLevel"></div>
+            <h3>Current control mode: MANUAL</h3>
+            <div class="controls-bar">
+                <div class="window-status">
+                    <h3>Current Window Opening</h3>
+                    <div class="bar-container">
+                        <div class="bar" id="currentLevel"></div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="window-control">
-                <h3>Set Desired Opening Level</h3>
-                <input type="range" min="0" max="100" value="0" id="setLevelSlider">
+                <div class="buttons-panel">
+                    <div class="window-control">
+                        <h3>Set Desired Opening Level</h3>
+                        <input type="range" min="0" max="100" value="0" id="setLevelSlider">
+                    </div>
+                    <input type="button" value="SOLVE PROBLEM" />
+                    <input type="button" value="MANUAL STATE" />
+                </div>
             </div>
         </div>
     </main>
