@@ -1,9 +1,11 @@
 /* Define standard variables and values for website */
-$bgcolor: white;
+$bgcolor: #e6f4f5;
 $textcolor: black;
-$fgcolor: gray;
+$fgcolor1: #04d6bd;
+$fgcolor2: #00c6e9;
 $skycolor: azure;
 $fontsize: 18px;
+$box-color: white;
 
 /* Use the variables */
 body {
@@ -11,12 +13,20 @@ body {
     color: $textcolor;
     font-size: $fontsize;
 
+    header{
+        h1{
+            background: linear-gradient(to bottom, $fgcolor1, $fgcolor2);
+            color: $bgcolor;
+            padding: 10px;
+        }
+    }
+
     main {
         display: flex;
         width: 100%;
 
-        /* Altezza: tutta la finestra */
         .box {
+            background-color: $box-color;
             flex: 1;
             padding: 20px;
             box-sizing: border-box;
@@ -25,7 +35,6 @@ body {
         }
 
         .left {
-            background-color: lightblue;
             display: flex;
             border-right: 1px solid $textcolor;
 
@@ -37,7 +46,7 @@ body {
                 .stats-box {
                     width: 100px;
                     height: 100px;
-                    background-color: $fgcolor;
+                    background: linear-gradient(to bottom, $fgcolor1, $fgcolor2);
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
@@ -49,13 +58,13 @@ body {
             }
 
             svg {
-                margin-top: 40px;
-                border: 1px solid $bgcolor;
+                margin-top: 2px;
+                border: 2px solid $fgcolor2;
+                padding: 15px;
             }
         }
 
         .right {
-            background-color: lightcoral;
             display: flex;
             border-left: 1px solid $textcolor;
 

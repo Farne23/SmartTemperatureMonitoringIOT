@@ -1,16 +1,21 @@
 /* Define standard variables and values for website */
 /* Use the variables */
 body {
-  background-color: white;
+  background-color: #e6f4f5;
   color: black;
   font-size: 18px;
+}
+body header h1 {
+  background: linear-gradient(to bottom, #04d6bd, #00c6e9);
+  color: #e6f4f5;
+  padding: 10px;
 }
 body main {
   display: flex;
   width: 100%;
-  /* Altezza: tutta la finestra */
 }
 body main .box {
+  background-color: white;
   flex: 1;
   padding: 20px;
   box-sizing: border-box;
@@ -18,7 +23,6 @@ body main .box {
   align-items: center;
 }
 body main .left {
-  background-color: lightblue;
   display: flex;
   border-right: 1px solid black;
 }
@@ -30,21 +34,21 @@ body main .left .stats-container {
 body main .left .stats-container .stats-box {
   width: 100px;
   height: 100px;
-  background-color: gray;
+  background: linear-gradient(to bottom, #04d6bd, #00c6e9);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 10px;
   margin: 20px;
-  border: 1px solid white;
+  border: 1px solid #e6f4f5;
 }
 body main .left svg {
-  margin-top: 40px;
-  border: 1px solid white;
+  margin-top: 2px;
+  border: 2px solid #00c6e9;
+  padding: 15px;
 }
 body main .right {
-  background-color: lightcoral;
   display: flex;
   border-left: 1px solid black;
 }
