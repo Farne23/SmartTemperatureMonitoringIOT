@@ -132,5 +132,40 @@ body main .right .controls-bar .buttons-panel .window-control input[type=range]:
   background: #00c6e9;
   cursor: pointer;
 }
+body footer {
+  background-color: #00c6e9;
+  color: #e6f4f5;
+  padding: 20px 10px;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 40px;
+}
+body footer a {
+  color: #e6f4f5;
+  text-decoration: none;
+}
+body footer a:hover {
+  text-decoration: underline;
+}
+body footer .footer-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+body footer .footer-content p {
+  margin: 5px 0;
+}
+body footer .footer-content .authors {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-top: 15px;
+}
+body footer .footer-content .authors .author {
+  text-align: left;
+}
+body footer .footer-content .authors .author p:first-of-type {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
 
 /*# sourceMappingURL=styles.css.map */

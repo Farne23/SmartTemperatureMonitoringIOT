@@ -6,28 +6,29 @@ $fgcolor2: #00c6e9;
 $skycolor: azure;
 $fontsize: 18px;
 $box-color: white;
-$font : 'Roboto', sans-serif;
+$font : 'Roboto',
+sans-serif;
 
 /* Use the variables */
 body {
     background-color: $bgcolor;
     color: $textcolor;
-    font-family:$font;
+    font-family: $font;
     font-size: $fontsize;
 
-    header{
-        h1{
+    header {
+        h1 {
             background: linear-gradient(to bottom, $fgcolor1, $fgcolor2);
             font-weight: bold;
             color: $bgcolor;
             padding: 10px;
         }
 
-        h2{
+        h2 {
             font-style: italic;
             padding-left: 10px;
 
-            span{
+            span {
                 color: red;
             }
         }
@@ -68,16 +69,16 @@ body {
                     border: 1px solid $bgcolor;
                     color: $bgcolor;
 
-                    p{
+                    p {
                         margin: 5px;
                     }
 
-                    p:first-of-type{
+                    p:first-of-type {
                         font-size: 24px;
                         font-weight: bold;
                     }
 
-                    p:nth-of-type(2){
+                    p:nth-of-type(2) {
                         font-size: 21px;
                         font-style: italic;
                     }
@@ -114,7 +115,7 @@ body {
                 .bar-container {
                     width: 100px;
                     height: 200px;
-                    background: linear-gradient(180deg, $fgcolor2,$fgcolor1);
+                    background: linear-gradient(180deg, $fgcolor2, $fgcolor1);
                     border-radius: 10px;
                     position: relative;
                     margin: 0 auto;
@@ -165,4 +166,48 @@ body {
             }
         }
     }
+
+    footer {
+        background-color: $fgcolor2;
+        color: $bgcolor;
+        padding: 20px 10px;
+        font-size: 16px;
+        text-align: center;
+        margin-top: 40px;
+
+        a {
+            color: $bgcolor;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+
+            p {
+                margin: 5px 0;
+            }
+
+            .authors {
+                display: flex;
+                justify-content: center;
+                gap: 50px;
+                margin-top: 15px;
+
+                .author {
+                    text-align: left;
+
+                    p:first-of-type {
+                        font-weight: bold;
+                        margin-bottom: 5px;
+                    }
+                }
+            }
+        }
+    }
+
 }
