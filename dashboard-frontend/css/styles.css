@@ -66,7 +66,6 @@ body main .left .stats-container .stats-box p:nth-of-type(2) {
 }
 body main .left svg {
   margin-top: 2px;
-  border: 2px solid #00c6e9;
   padding: 15px;
 }
 body main .right {
@@ -108,6 +107,25 @@ body main .right .controls-bar .bar-container .bar {
 body main .right .controls-bar .buttons-panel {
   display: flex;
   flex-direction: column;
+}
+body main .right .controls-bar .buttons-panel input[type=button] {
+  background-color: #00c6e9;
+  border: 1px solid #04d6bd;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  margin: 5px;
+  font-size: 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+body main .right .controls-bar .buttons-panel input[type=button]:hover {
+  background-color: #0288d1;
+}
+body main .right .controls-bar .buttons-panel input[type=button]:active {
+  background-color: #0277bd;
 }
 body main .right .controls-bar .buttons-panel .window-control input[type=range] {
   -webkit-appearance: none;
