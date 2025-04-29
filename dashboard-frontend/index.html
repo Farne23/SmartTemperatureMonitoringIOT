@@ -14,6 +14,7 @@
     <header>
         <h1>Smart temperature monitoring</h1>
         <h2>System state: <span id="sysState">NORMAL</span></h2>
+        <h2>Control mode: <span id="controlMode">MANUAL</span></h2>
     </header>
     <main>
         <div class="box left">
@@ -37,21 +38,23 @@
         </div>
         <div class="box right">
             <h2>Control Panel</h2>
-            <h3>Current control mode: MANUAL</h3>
             <div class="controls-bar">
-                <div class="window-status">
-                    <h3>Current Window Opening</h3>
-                    <div class="bar-container">
-                        <div class="bar" id="currentLevel"></div>
-                    </div>
+                <div class="buttons-row">
+                    <input type="button" class="primary" value="CHANGE MODE" />
+                    <input type="button" class="danger" value="SOLVE PROBLEM" />
                 </div>
-                <div class="buttons-panel">
+                <div class="window-status-row">
+                    <div class="window-status">
+                        <h3>Window Opening</h3>
+                        <div class="bar-container">
+                            <div class="bar" id="currentLevel"></div>
+                        </div>
+                        <p id="openingLevel">35%</p>
+                    </div>
                     <div class="window-control">
-                        <h3>Set Desired Opening Level</h3>
+                        <h3>Set level</h3>
                         <input type="range" min="0" max="100" value="0" id="setLevelSlider">
                     </div>
-                    <input type="button" class="danger" value="SOLVE PROBLEM" />
-                    <input type="button" class="primary" value="MANUAL STATE" />
                 </div>
             </div>
         </div>
