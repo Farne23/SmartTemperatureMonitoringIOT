@@ -1,4 +1,3 @@
-/* Define standard variables and values for website */
 /* Use the variables */
 body {
   background-color: #e6f4f5;
@@ -108,8 +107,7 @@ body main .right .controls-bar .buttons-panel {
   display: flex;
   flex-direction: column;
 }
-body main .right .controls-bar .buttons-panel input[type=button] {
-  background-color: #00c6e9;
+body main .right .controls-bar .buttons-panel input[type=button].danger, body main .right .controls-bar .buttons-panel input[type=button].primary, body main .right .controls-bar .buttons-panel input[type=button] {
   border: 1px solid #04d6bd;
   color: white;
   border: none;
@@ -121,11 +119,23 @@ body main .right .controls-bar .buttons-panel input[type=button] {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-body main .right .controls-bar .buttons-panel input[type=button]:hover {
-  background-color: #0288d1;
+body main .right .controls-bar .buttons-panel input[type=button].primary {
+  background: linear-gradient(to bottom, #04d6bd, #00c6e9);
 }
-body main .right .controls-bar .buttons-panel input[type=button]:active {
-  background-color: #0277bd;
+body main .right .controls-bar .buttons-panel input[type=button].primary:hover {
+  background: rgb(3.0642201835, 163.9357798165, 144.7844036697);
+}
+body main .right .controls-bar .buttons-panel input[type=button].primary:active {
+  background: rgb(2.128440367, 113.871559633, 100.5688073394);
+}
+body main .right .controls-bar .buttons-panel input[type=button].danger {
+  background: linear-gradient(to bottom, #F0DFA9, #b04826);
+}
+body main .right .controls-bar .buttons-panel input[type=button].danger:hover {
+  background: rgb(232.4257425743, 206.8415841584, 125.5742574257);
+}
+body main .right .controls-bar .buttons-panel input[type=button].danger:active {
+  background: rgb(92.1121495327, 37.6822429907, 19.8878504673);
 }
 body main .right .controls-bar .buttons-panel .window-control input[type=range] {
   -webkit-appearance: none;

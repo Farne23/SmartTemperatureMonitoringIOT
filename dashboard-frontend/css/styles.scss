@@ -1,8 +1,11 @@
-/* Define standard variables and values for website */
+@use 'sass:color';
+
 $bgcolor: #e6f4f5;
 $textcolor: black;
 $fgcolor1: #04d6bd;
 $fgcolor2: #00c6e9;
+$highlightcolor1: #F0DFA9;
+$highlightcolor2: #b04826;
 $skycolor: azure;
 $fontsize: 18px;
 $box-color: white;
@@ -134,8 +137,7 @@ body {
                     display: flex;
                     flex-direction: column;
 
-                    input[type="button"] {
-                        background-color: $fgcolor2; 
+                    %button-base {
                         border: 1px solid $fgcolor1;
                         color: white;
                         border: none;
@@ -146,15 +148,39 @@ body {
                         font-weight: bold;
                         cursor: pointer;
                         transition: background-color 0.3s ease;
-                      
+                    }
+
+                    input[type="button"] {
+                        @extend %button-base;
+                    }
+
+                    input[type="button"].primary {
+                        @extend %button-base;
+                        background: linear-gradient(to bottom, $fgcolor1, $fgcolor2);
+
                         &:hover {
-                          background-color: #0288d1; 
+                            background: color.adjust($fgcolor1, $lightness: -10%);
                         }
-                      
+
                         &:active {
-                          background-color: #0277bd; 
+                            background: color.adjust($fgcolor1, $lightness: -20%);
                         }
-                      }
+
+                    }
+
+                    input[type="button"].danger {
+                        @extend %button-base;
+                        background: linear-gradient(to bottom, $highlightcolor1, $highlightcolor2);
+
+                        &:hover {
+                            background: color.adjust($highlightcolor1, $lightness: -10%);
+                        }
+
+                        &:active {
+                            background: color.adjust($highlightcolor2, $lightness: -20%);
+                        }
+                    }
+
 
                     .window-control {
                         input[type="range"] {
