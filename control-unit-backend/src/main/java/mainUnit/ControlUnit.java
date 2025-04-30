@@ -91,6 +91,8 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 			 this.controlMode = this.controlMode.switchMode();
 			 });
 		 
+		 /*Consumer for messages received from the server allerting that the user has 
+		  * solved the problem and wants to go back to the normal system state.*/
 		 vertx.eventBus().consumer(DASH_STOP_ALLARM_LINE_ADDRESS, message -> {
 			 if(this.systemState == SystemState.ALARM) {
 				 this.systemState = SystemState.NORMAL;
