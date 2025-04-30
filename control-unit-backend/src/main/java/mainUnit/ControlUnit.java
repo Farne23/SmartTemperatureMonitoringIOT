@@ -32,11 +32,13 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	private static String TEMPERATURES_LINE_ADDRESS = "temperatures.line";
 	private static String OPENLEVEL_LINE_ADDRESS = "openlevel.line";
 	private static String DASH_WINDOW_LEVEL_LINE_ADDRESS = "dashboard.window.level";
+	private static String DASH_SWITCH_MODE_LINE_ADDRESS = "dashboard.controlmode.switch";
+	private static String DASH_STOP_ALLARM_LINE_ADDRESS = "dashboard.alarm.stop";
 	
 	private LocalDateTime tooHotStartTime;
 	
 	private SystemState systemState = SystemState.NORMAL;
-	private ControlMode controMode = ControlMode.AUTOMATIC;
+	private ControlMode controlMode = ControlMode.AUTOMATIC;
 	
 	private int openPercentage;
 	
@@ -74,14 +76,26 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	        });
 		 
 		 /*Consumer for messages received from the server allerting that the user is trying to change the open level
-		  * of the window thorugh the dashboard, */
+		  * of the window thorugh the dashboard, the level is changed if the mode has already been switched to manual*/
 		 vertx.eventBus().consumer(DASH_WINDOW_LEVEL_LINE_ADDRESS, message -> {
 			    JsonObject body = (JsonObject) message.body();
 			    int level = body.getInteger("level");
-			    if(CONT) {
+			    if(controlMode == ControlMode.MANUAL) {
 			    	changeWindowOpenLevel(level);
 			    }
 			});
+		 
+		 /*Consumer for messages received from the server allerting that the user is trying to
+		  * switch control mode*/
+		 vertx.eventBus().consumer(DASH_SWITCH_MODE_LINE_ADDRESS, message -> {
+			 this.controlMode = this.controlMode.switchMode();
+			 });
+		 
+		 vertx.eventBus().consumer(DASH_STOP_ALLARM_LINE_ADDRESS, message -> {
+			 if(this.systemState == SystemState.ALARM) {
+				 this.systemState = SystemState.NORMAL;
+			 }
+			 });
 	}
 	
 	private void communicateTemperature(LocalDateTime date, double temperature) {
