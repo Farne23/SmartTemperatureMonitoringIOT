@@ -5,6 +5,7 @@ import java.util.Stack;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
+import utils.ControlMode;
 import utils.SystemState;
 import utils.TemperatureSample;
 
@@ -30,10 +31,13 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	private static String FREQUENCY_LINE_ADDRESS = "frequency.line";
 	private static String TEMPERATURES_LINE_ADDRESS = "temperatures.line";
 	private static String OPENLEVEL_LINE_ADDRESS = "openlevel.line";
+	private static String DASH_WINDOW_LEVEL_LINE_ADDRESS = "dashboard.window.level";
 	
 	private LocalDateTime tooHotStartTime;
 	
 	private SystemState systemState = SystemState.NORMAL;
+	private ControlMode controMode = ControlMode.AUTOMATIC;
+	
 	private int openPercentage;
 	
 	private HashMap<LocalDateTime, Double> dailyMax = new HashMap<>();
@@ -45,7 +49,9 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	//Stack keeping track of the last N temperatures sampled
 	private Stack<TemperatureSample> temperatures;
 	
-	public ControlUnit () {}
+	public ControlUnit () {
+		this.openPercentage = 0;
+	}
 
 	public void start() {
 		/* Control unit is going to listen from the temperatures.line address.
@@ -66,6 +72,16 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 					e.printStackTrace();
 				}		
 	        });
+		 
+		 /*Consumer for messages received from the server allerting that the user is trying to change the open level
+		  * of the window thorugh the dashboard, */
+		 vertx.eventBus().consumer(DASH_WINDOW_LEVEL_LINE_ADDRESS, message -> {
+			    JsonObject body = (JsonObject) message.body();
+			    int level = body.getInteger("level");
+			    if(CONT) {
+			    	changeWindowOpenLevel(level);
+			    }
+			});
 	}
 	
 	private void communicateTemperature(LocalDateTime date, double temperature) {
@@ -98,6 +114,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 			        .put("timestamp", LocalDateTime.now().toString())
 			        .put("temperature", 22.5)
 			);*/
+		this.openPercentage = openPercentage;
 		vertx.eventBus().send(OPENLEVEL_LINE_ADDRESS, openPercentage);		
 	}
 	

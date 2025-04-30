@@ -44,6 +44,9 @@ public class HTTPServer extends AbstractVerticle {
         log("Service ready on port: " + port);
     }
     
+    /* Handler of post messages received from the dashboard, acting as a client.
+     * It checks the control sent trough the type parameter of the json message received
+     * and alerts the control unit through messages sent via vertex message lines*/
     private void handleDashaboardControls(RoutingContext routingContext) {
     	HttpServerResponse response = routingContext.response();
         JsonObject body = routingContext.getBodyAsJson();
@@ -60,6 +63,13 @@ public class HTTPServer extends AbstractVerticle {
                 break;
             case "switchControlMode":
                 vertx.eventBus().publish("dashboard.controlmode.switch", body);
+                break;
+            case "updateWindowLevel":
+                if (!body.containsKey("level") || !(body.getValue("level") instanceof Integer)) {
+                    sendError(400, response.setStatusMessage("Missing or invalid 'level' field"));
+                    return;
+                }
+                vertx.eventBus().publish("dashboard.window.level", body);
                 break;
             default:
                 sendError(400, response.setStatusMessage("Unknown message type: " + messageType));
