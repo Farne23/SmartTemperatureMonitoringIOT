@@ -1,5 +1,8 @@
 package communicationHTTP;
 
+
+import java.util.HashSet;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
@@ -8,11 +11,23 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import utils.ControlMode;
+import utils.SystemState;
+import utils.TemperatureSample;
 public class HTTPServer extends AbstractVerticle {
 
     private int port = 8080;
-    private static final int MAX_SIZE = 10;
-    //private LinkedList<DataPoint> values;
+    
+    /* Infos that are going to be periodically
+     * updated by the control unit and shared to the dashboard
+     * client accessing it via HTTP Get requests.*/
+    private double maxTeperature;
+    private double minTemperature;
+    private double avgTemperature;
+    private ControlMode controlMode;
+    private SystemState systemState;
+    private int openingLevel;
+    private HashSet<TemperatureSample> temperatures;
 
     @Override
     public void start() {        
@@ -83,15 +98,28 @@ public class HTTPServer extends AbstractVerticle {
     
     
     private void handleGetData(RoutingContext routingContext) {
-        JsonArray arr = new JsonArray();
         JsonObject data = new JsonObject();
-            data.put("time", "a");
-            data.put("value", "b");
-            data.put("place", "c");
-            arr.add(data);
+        data.put("maxTemperature", maxTeperature);
+        data.put("minTemperature", minTemperature);
+        data.put("avgTemperature", avgTemperature);
+        data.put("controlMode", controlMode != null ? controlMode.toString() : null);
+        data.put("systemState", systemState != null ? systemState.toString() : null);
+        data.put("openingLevel", openingLevel);
+
+        JsonArray temperaturesArray = new JsonArray();
+        if (temperatures != null) {
+            for (TemperatureSample sample : temperatures) {
+                JsonObject sampleJson = new JsonObject()
+                    .put("time", sample.getDateTime().toString()) 
+                    .put("value", sample.getTemperature());
+                temperaturesArray.add(sampleJson);
+            }
+        }
+        data.put("temperatures", temperaturesArray);
+
         routingContext.response()
             .putHeader("content-type", "application/json")
-            .end(arr.encodePrettily());
+            .end(data.encodePrettily());
     }
 
     private void sendError(int statusCode, HttpServerResponse response) {
