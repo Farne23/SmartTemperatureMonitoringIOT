@@ -1,6 +1,7 @@
 package communicationHTTP;
 
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 
 import io.vertx.core.AbstractVerticle;
@@ -15,13 +16,19 @@ import utils.ControlMode;
 import utils.SystemState;
 import utils.TemperatureSample;
 public class HTTPServer extends AbstractVerticle {
+	
+	//Message lines for DASHBOARD updates	
+	private static final String DASH_UPDATE_TEMPERATURE_STATS = "dash.update.temperature.stats";
+	private static final String DASH_UPDATE_CONTROL_MODE = "dash.update.control.mode";
+	private static final String DASH_UPDATE_SYSTEM_STATE = "dash.update.system.state";
+	private static final String DASH_UPDATE_OPENING_LEVEL = "dash.update.opening.level";
 
     private int port = 8080;
     
     /* Infos that are going to be periodically
      * updated by the control unit and shared to the dashboard
      * client accessing it via HTTP Get requests.*/
-    private double maxTeperature;
+    private double maxTemperature;
     private double minTemperature;
     private double avgTemperature;
     private ControlMode controlMode;
@@ -57,6 +64,50 @@ public class HTTPServer extends AbstractVerticle {
             .listen(port);
 
         log("Service ready on port: " + port);
+        
+        //Consumer for the stats sent by the control unit
+        vertx.eventBus().consumer(DASH_UPDATE_TEMPERATURE_STATS, message -> {
+            JsonObject body = (JsonObject) message.body();
+            maxTemperature = body.getDouble("dailyMax", 0.0);
+            minTemperature = body.getDouble("dailyMin", 0.0);
+            avgTemperature = body.getDouble("dailyAverage", 0.0);
+
+            JsonArray tempsArray = body.getJsonArray("temperatures");
+            temperatures.clear();
+            if (tempsArray != null) {
+                for (int i = 0; i < tempsArray.size(); i++) {
+                    JsonObject tempObj = tempsArray.getJsonObject(i);
+                    LocalDateTime time = LocalDateTime.parse(tempObj.getString("time"));
+                    double value = tempObj.getDouble("value");
+                    temperatures.add(new TemperatureSample(time, value));
+                }
+            }
+            log("Updated stats and temperatures.");
+        });
+
+        vertx.eventBus().consumer(DASH_UPDATE_CONTROL_MODE, message -> {
+            JsonObject body = (JsonObject) message.body();
+            String modeStr = body.getString("controlMode");
+            if (modeStr != null) {
+                controlMode = ControlMode.valueOf(modeStr);
+                System.out.println("Updated control mode: " + controlMode);
+            }
+        });
+
+        vertx.eventBus().consumer(DASH_UPDATE_SYSTEM_STATE, message -> {
+            JsonObject body = (JsonObject) message.body();
+            String stateStr = body.getString("systemState");
+            if (stateStr != null) {
+                systemState = SystemState.valueOf(stateStr);
+                System.out.println("Updated system state: " + systemState);
+            }
+        });
+
+        vertx.eventBus().consumer(DASH_UPDATE_OPENING_LEVEL, message -> {
+            JsonObject body = (JsonObject) message.body();
+            openingLevel = body.getInteger("openingLevel", 0);
+            System.out.println("Updated opening level: " + openingLevel);
+        });
     }
     
     /* Handler of post messages received from the dashboard, acting as a client.
@@ -99,7 +150,7 @@ public class HTTPServer extends AbstractVerticle {
     
     private void handleGetData(RoutingContext routingContext) {
         JsonObject data = new JsonObject();
-        data.put("maxTemperature", maxTeperature);
+        data.put("maxTemperature", maxTemperature);
         data.put("minTemperature", minTemperature);
         data.put("avgTemperature", avgTemperature);
         data.put("controlMode", controlMode != null ? controlMode.toString() : null);

@@ -4,17 +4,16 @@ import java.util.Stack;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.DecodeException;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import utils.ControlMode;
 import utils.SystemState;
 import utils.TemperatureSample;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /*
  * Class implementing the main functions of the Window Controller Subsystem,
@@ -35,12 +34,18 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	private static String DASH_SWITCH_MODE_LINE_ADDRESS = "dashboard.controlmode.switch";
 	private static String DASH_STOP_ALLARM_LINE_ADDRESS = "dashboard.alarm.stop";
 	
+	//Message lines for DASHBOARD updates	
+	private static final String DASH_UPDATE_TEMPERATURE_STATS = "dash.update.temperature.stats";
+	private static final String DASH_UPDATE_CONTROL_MODE = "dash.update.control.mode";
+	private static final String DASH_UPDATE_SYSTEM_STATE = "dash.update.system.state";
+	private static final String DASH_UPDATE_OPENING_LEVEL = "dash.update.opening.level";
+	
 	private LocalDateTime tooHotStartTime;
 	
 	private SystemState systemState = SystemState.NORMAL;
 	private ControlMode controlMode = ControlMode.AUTOMATIC;
 	
-	private int openPercentage;
+	private int openingLevel;
 	
 	private HashMap<LocalDateTime, Double> dailyMax = new HashMap<>();
     private HashMap<LocalDateTime, Double> dailyMin = new HashMap<>();
@@ -52,7 +57,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	private Stack<TemperatureSample> temperatures;
 	
 	public ControlUnit () {
-		this.openPercentage = 0;
+		this.openingLevel = 0;
 	}
 
 	public void start() {
@@ -89,6 +94,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 		  * switch control mode*/
 		 vertx.eventBus().consumer(DASH_SWITCH_MODE_LINE_ADDRESS, message -> {
 			 this.controlMode = this.controlMode.switchMode();
+			 this.sendControlModeDash();
 			 });
 		 
 		 /*Consumer for messages received from the server allerting that the user has 
@@ -96,6 +102,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 		 vertx.eventBus().consumer(DASH_STOP_ALLARM_LINE_ADDRESS, message -> {
 			 if(this.systemState == SystemState.ALARM) {
 				 this.systemState = SystemState.NORMAL;
+				 this.sendSystemStateDash();
 			 }
 			 });
 	}
@@ -130,8 +137,9 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 			        .put("timestamp", LocalDateTime.now().toString())
 			        .put("temperature", 22.5)
 			);*/
-		this.openPercentage = openPercentage;
-		vertx.eventBus().send(OPENLEVEL_LINE_ADDRESS, openPercentage);		
+		this.openingLevel = openPercentage;
+		vertx.eventBus().send(OPENLEVEL_LINE_ADDRESS, openPercentage);	
+		this.sendOpeningLevelDash();
 	}
 	
 	private void closeWindow() {
@@ -153,6 +161,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
         dailyCount.put(sample.getDateTime(), dailyCount.getOrDefault(sample.getDateTime(), 0) + 1);
         dailyAverage.put(sample.getDateTime(), dailySum.get(sample.getDateTime()) / dailyCount.get(sample.getDateTime()));
         checkStatus(sample);
+        this.sendStatsDash();
 	}
 	
 	/*
@@ -181,7 +190,8 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 					systemState = SystemState.ALARM;
 				}
 			}	
-		}	
+		}
+		this.sendSystemStateDash();
 	}
 	
 	/*
@@ -192,5 +202,51 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	 */
 	private int getOpenLevel(double temperature) {
 		return (int)Math.round((temperature-TEMPERATURE_THRESHOLD_NORMAL)*100/(TEMPERATURE_THRESHOLD_HOT-TEMPERATURE_THRESHOLD_NORMAL));
+	}
+	
+	// Funzione per ottenere il valore per il giorno corrente da una HashMap
+	private <T> T getTodayValue(HashMap<LocalDateTime, T> map) {
+	    LocalDate today = LocalDate.now();
+	    for (Map.Entry<LocalDateTime, T> entry : map.entrySet()) {
+	        if (entry.getKey().toLocalDate().equals(today)) {
+	            return entry.getValue();
+	        }
+	    }
+	    return null;  // oppure valore di default
+	}
+
+	//Function communicating to the server the update values for stats and last n recorded temperature samples
+	private void sendStatsDash() {
+	    Double todaysMax = getTodayValue(dailyMax);
+	    Double todaysMin = getTodayValue(dailyMin);
+	    Double todaysAverage = getTodayValue(dailyAverage);
+	    JsonArray temperaturesArray = new JsonArray();
+	    if (temperatures != null) {
+	        for (TemperatureSample sample : temperatures) {
+	            JsonObject sampleJson = new JsonObject()
+	                .put("time", sample.getDateTime().toString())
+	                .put("value", sample.getTemperature());
+	            temperaturesArray.add(sampleJson);
+	        }
+	    }
+	    vertx.eventBus().publish(DASH_UPDATE_TEMPERATURE_STATS, new JsonObject()
+	    		.put("dailyMax", todaysMax)
+	    		.put("dailyAverage", todaysAverage)
+	    		.put("dailyMin", todaysMin)
+	    		.put("temperatures", temperaturesArray));
+	}
+
+	private void sendControlModeDash() {
+		vertx.eventBus().publish(DASH_UPDATE_CONTROL_MODE, new JsonObject()
+	        .put("controlMode", controlMode != null ? controlMode.toString() : null));
+	}
+
+	private void sendSystemStateDash() {
+	    vertx.eventBus().publish(DASH_UPDATE_SYSTEM_STATE, new JsonObject()
+	        .put("systemState", systemState != null ? systemState.toString() : null));
+	}
+	private void sendOpeningLevelDash() {
+		vertx.eventBus().publish(DASH_UPDATE_OPENING_LEVEL, new JsonObject()
+	        .put("openingLevel", openingLevel));
 	}
 }
