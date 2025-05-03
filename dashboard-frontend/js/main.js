@@ -1,16 +1,11 @@
-// Dati di esempio: temperature su 10 giorni
-const data = [
-    { day: new Date(2025, 3, 8), temp: 15 },
-    { day: new Date(2025, 3, 9), temp: 17 },
-    { day: new Date(2025, 3, 10), temp: 14 },
-    { day: new Date(2025, 3, 11), temp: 18 },
-    { day: new Date(2025, 3, 12), temp: 20 },
-    { day: new Date(2025, 3, 13), temp: 19 },
-    { day: new Date(2025, 3, 14), temp: 22 },
-    { day: new Date(2025, 3, 15), temp: 21 },
-    { day: new Date(2025, 3, 16), temp: 23 },
-    { day: new Date(2025, 3, 17), temp: 24 }
-];
+//Poll interval of the dashboard updates
+const POLL_INTERVAL_MS = 500;
+
+//Address used for HTTP comunication with the main contro lunit.
+const CONTROL_UNIT_ADDRESS = "prova-prova";
+
+//Array for temperatures samples
+const samples = [];
 
 const svg = d3.select("svg");
 const margin = { top: 20, right: 30, bottom: 30, left: 50 };
@@ -21,17 +16,17 @@ const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.t
 
 // Scale
 const x = d3.scaleTime()
-    .domain(d3.extent(data, d => d.day))
+    .domain(d3.extent(samples, s => s.date))
     .range([0, width]);
 
 const y = d3.scaleLinear()
-    .domain([12, d3.max(data, d => d.temp)])
+    .domain([12, d3.max(samples, s => s.temp)])
     .range([height, 0]);
 
 // Linea
 const line = d3.line()
-    .x(d => x(d.day))
-    .y(d => y(d.temp));
+    .x(s => x(s.date))
+    .y(s => y(s.temp));
 
 // Assi
 g.append("g")
@@ -43,7 +38,7 @@ g.append("g")
 
 // Linea dati
 g.append("path")
-    .datum(data)
+    .datum(samples)
     .attr("fill", "none")
     .attr("stroke", "steelblue")
     .attr("stroke-width", 2)
@@ -51,10 +46,10 @@ g.append("path")
 
 // Pallini per ogni dato
 g.selectAll("circle")
-    .data(data)
+    .data(samples)
     .enter().append("circle")
-    .attr("cx", d => x(d.day))
-    .attr("cy", d => y(d.temp))
+    .attr("cx", s => x(s.date))
+    .attr("cy", s => y(s.temp))
     .attr("r", 4)
     .attr("fill", "orange");
 
@@ -72,9 +67,9 @@ g.selectAll(".threshold-line")
     .attr("class", "threshold-line")
     .attr("x1", 0)
     .attr("x2", width)
-    .attr("y1", d => y(d.temp))
-    .attr("y2", d => y(d.temp))
-    .attr("stroke", d => d.color)
+    .attr("y1", s => y(s.temp))
+    .attr("y2", s => y(s.temp))
+    .attr("stroke", s => s.color)
     .attr("stroke-dasharray", "4 4")
     .attr("stroke-width", 2);
 
@@ -84,14 +79,15 @@ g.selectAll(".threshold-label")
     .enter()
     .append("text")
     .attr("x", width - 60)
-    .attr("y", d => y(d.temp) - 5)
-    .attr("fill", d => d.color)
+    .attr("y", s => y(s.temp) - 5)
+    .attr("fill", s => s.color)
     .attr("font-size", "12px")
-    .text(d => d.label);
+    .text(s => s.label);
 
 function updateLevel(level) {
     const bar = document.getElementById('currentLevel');
     bar.style.height = level + '%';
+    document.getElementById("openingLevel").innerText = level;
 }
 
 function handleSliderChange() {
@@ -101,8 +97,53 @@ function handleSliderChange() {
     updateLevel(newLevel);
 }
 
-// collego l'evento subito
+function updateLevelSlider(newLevel) {
+    const slider = document.getElementById('setLevelSlider');
+    slider.value = newLevel;
+    updateLevel(newLevel)
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('setLevelSlider');
     slider.addEventListener('input', handleSliderChange);
 });
+
+//Function retrieving data from the main unit.
+async function fetchDashboardData() {
+    try {
+        const response = await fetch(CONTROL_UNIT_ADDRESS);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        handleDashboardData(data);
+    } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+    }
+}
+
+//Function handling the updates received from the main unit.
+function handleDashboardData(data) {
+    //LOGGING
+    console.log('Max Temperature:', data.maxTemperature);
+    console.log('Min Temperature:', data.minTemperature);
+    console.log('Avg Temperature:', data.avgTemperature);
+    console.log('Control Mode:', data.controlMode);
+    console.log('System State:', data.systemState);
+    console.log('Opening Level:', data.openingLevel);
+    console.log('Temperatures (last N samples):');
+    data.temperatures.forEach(sample => {
+        console.log(` - Time: ${sample.time}, Value: ${sample.value}`);
+    });
+
+    document.getElementById("sysState").innerText = data.systemState;
+    document.getElementById("controlMode").innerText = data.controlMode;
+    document.getElementById("avgTemp").innerText = data.avgTemperature;
+    document.getElementById("minTemp").innerText = data.minTemperature;
+    document.getElementById("maxTemp").innerText = data.maxTemperature;
+    updateLevelSlider(data.openingLevel);
+    samples = data.temperatures.map(sample => ({
+        date: new Date(sample.time),
+        temp: sample.value
+    }));
+}
