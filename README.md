@@ -113,8 +113,8 @@ assignment-03/
 5. Verify communication between subsystems.
 
 ## Authors
-- **Michele Farneti** (Matricola: [..DA DEFINIRE..], Email: michele.farneti@studio.unibo.it)
-- **Samuele Casadei** (Matricola: [..DA DEFINIRE..], Email: [..DA DEFINIRE..])
+- **Michele Farneti** (Email: michele.farneti@studio.unibo.it)
+- **Samuele Casadei** (Email: [..DA DEFINIRE..])
 
 ## License
 This project is licensed under the **MIT License**.
