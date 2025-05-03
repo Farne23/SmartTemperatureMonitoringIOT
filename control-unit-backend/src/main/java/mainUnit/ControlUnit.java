@@ -18,7 +18,7 @@ import java.util.Map;
 /*
  * Class implementing the main functions of the Window Controller Subsystem,
  */
-public class ControlUnit extends AbstractVerticle implements TempSensorDataReceiver {
+public class ControlUnit extends AbstractVerticle {
 	
 	private static final int MAX_HISTORY_SAMPLES = 100;
 	private static final double TEMPERATURE_THRESHOLD_NORMAL = 20;
@@ -30,15 +30,16 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	private static String FREQUENCY_LINE_ADDRESS = "frequency.line";
 	private static String TEMPERATURES_LINE_ADDRESS = "temperatures.line";
 	private static String OPENLEVEL_LINE_ADDRESS = "openlevel.line";
-	private static String DASH_WINDOW_LEVEL_LINE_ADDRESS = "dashboard.window.level";
-	private static String DASH_SWITCH_MODE_LINE_ADDRESS = "dashboard.controlmode.switch";
-	private static String DASH_STOP_ALLARM_LINE_ADDRESS = "dashboard.alarm.stop";
+	private static String CHANGE_WINDOW_LEVEL_LINE_ADDRESS = "window.level.change";
+	private static String SWITCH_MODE_LINE_ADDRESS = "controlmode.switch";
+	private static String DASH_STOP_ALARM_LINE_ADDRESS = "dashboard.alarm.stop";
 	
-	//Message lines for DASHBOARD updates	
+	//Message lines for DASHBOARD and CONTROLLER updates	
 	private static final String DASH_UPDATE_TEMPERATURE_STATS = "dash.update.temperature.stats";
-	private static final String DASH_UPDATE_CONTROL_MODE = "dash.update.control.mode";
+	private static final String SIGNAL_UPDATE_CONTROL_MODE = "update.control.mode.line";
 	private static final String DASH_UPDATE_SYSTEM_STATE = "dash.update.system.state";
-	private static final String DASH_UPDATE_OPENING_LEVEL = "dash.update.opening.level";
+	private static final String SIGNAL_UPDATE_OPENING_LEVEL = "update.opening.level.line";
+	private static final String CONTROLLER_SIGNAL_TEMPERATURE_LINE_ADDRESS = "update.temperature.line";
 	
 	private LocalDateTime tooHotStartTime;
 	
@@ -80,9 +81,9 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 				}		
 	        });
 		 
-		 /*Consumer for messages received from the server allerting that the user is trying to change the open level
+		 /*Consumer for messages received from the server  or the controller system allerting that the user is trying to change the open level
 		  * of the window thorugh the dashboard, the level is changed if the mode has already been switched to manual*/
-		 vertx.eventBus().consumer(DASH_WINDOW_LEVEL_LINE_ADDRESS, message -> {
+		 vertx.eventBus().consumer(CHANGE_WINDOW_LEVEL_LINE_ADDRESS, message -> {
 			    JsonObject body = (JsonObject) message.body();
 			    int level = body.getInteger("level");
 			    if(controlMode == ControlMode.MANUAL) {
@@ -90,16 +91,16 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 			    }
 			});
 		 
-		 /*Consumer for messages received from the server allerting that the user is trying to
+		 /*Consumer for messages received from the server or the controller system allerting that the user is trying to
 		  * switch control mode*/
-		 vertx.eventBus().consumer(DASH_SWITCH_MODE_LINE_ADDRESS, message -> {
+		 vertx.eventBus().consumer(SWITCH_MODE_LINE_ADDRESS, message -> {
 			 this.controlMode = this.controlMode.switchMode();
-			 this.sendControlModeDash();
+			 this.sendControlMode();
 			 });
 		 
 		 /*Consumer for messages received from the server allerting that the user has 
 		  * solved the problem and wants to go back to the normal system state.*/
-		 vertx.eventBus().consumer(DASH_STOP_ALLARM_LINE_ADDRESS, message -> {
+		 vertx.eventBus().consumer(DASH_STOP_ALARM_LINE_ADDRESS, message -> {
 			 if(this.systemState == SystemState.ALARM) {
 				 this.systemState = SystemState.NORMAL;
 				 this.sendSystemStateDash();
@@ -139,7 +140,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 			);*/
 		this.openingLevel = openPercentage;
 		vertx.eventBus().send(OPENLEVEL_LINE_ADDRESS, openPercentage);	
-		this.sendOpeningLevelDash();
+		this.sendOpeningLevel();
 	}
 	
 	private void closeWindow() {
@@ -151,7 +152,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	}
 	
 	/*
-	 * Updates the system's daily statistics 
+	 * Updates the system's statistics
 	 */
 	private void updateStats(TemperatureSample sample) {
         // Update Max Temperature
@@ -162,6 +163,7 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
         dailyAverage.put(sample.getDateTime(), dailySum.get(sample.getDateTime()) / dailyCount.get(sample.getDateTime()));
         checkStatus(sample);
         this.sendStatsDash();
+        this.sendTemperatureToController(sample);
 	}
 	
 	/*
@@ -236,8 +238,8 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	    		.put("temperatures", temperaturesArray));
 	}
 
-	private void sendControlModeDash() {
-		vertx.eventBus().publish(DASH_UPDATE_CONTROL_MODE, new JsonObject()
+	private void sendControlMode() {
+		vertx.eventBus().publish(SIGNAL_UPDATE_CONTROL_MODE, new JsonObject()
 	        .put("controlMode", controlMode != null ? controlMode.toString() : null));
 	}
 
@@ -245,8 +247,17 @@ public class ControlUnit extends AbstractVerticle implements TempSensorDataRecei
 	    vertx.eventBus().publish(DASH_UPDATE_SYSTEM_STATE, new JsonObject()
 	        .put("systemState", systemState != null ? systemState.toString() : null));
 	}
-	private void sendOpeningLevelDash() {
-		vertx.eventBus().publish(DASH_UPDATE_OPENING_LEVEL, new JsonObject()
+	
+	/* Signlas the new opening level of the window*/
+	private void sendOpeningLevel() {
+		vertx.eventBus().publish(SIGNAL_UPDATE_OPENING_LEVEL, new JsonObject()
 	        .put("openingLevel", openingLevel));
 	}
+	
+	/* Alerts the last sampled temperature to the controller*/
+	private void sendTemperatureToController(TemperatureSample sample) {
+		vertx.eventBus().publish(CONTROLLER_SIGNAL_TEMPERATURE_LINE_ADDRESS, new JsonObject()
+		        .put("temperature", sample.getTemperature()));
+	}
+	
 }

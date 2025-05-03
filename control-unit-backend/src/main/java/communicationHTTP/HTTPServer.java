@@ -19,9 +19,12 @@ public class HTTPServer extends AbstractVerticle {
 	
 	//Message lines for DASHBOARD updates	
 	private static final String DASH_UPDATE_TEMPERATURE_STATS = "dash.update.temperature.stats";
-	private static final String DASH_UPDATE_CONTROL_MODE = "dash.update.control.mode";
+	private static final String DASH_UPDATE_CONTROL_MODE = "update.control.mode.line";
 	private static final String DASH_UPDATE_SYSTEM_STATE = "dash.update.system.state";
-	private static final String DASH_UPDATE_OPENING_LEVEL = "dash.update.opening.level";
+	private static final String DASH_UPDATE_OPENING_LEVEL = "update.opening.level";
+	private static String CHANGE_WINDOW_LEVEL_LINE_ADDRESS = "window.level.change";
+	private static String SWITCH_MODE_LINE_ADDRESS = "controlmode.switch";
+	private static String STOP_ALARM_LINE_ADDRESS = "dashboard.alarm.stop";
 
     private int port = 8080;
     
@@ -125,17 +128,17 @@ public class HTTPServer extends AbstractVerticle {
         String messageType = body.getString("type");
         switch (messageType) {
             case "stopAlarm":
-                vertx.eventBus().publish("dashboard.alarm.stop", body);
+                vertx.eventBus().publish(STOP_ALARM_LINE_ADDRESS, body);
                 break;
             case "switchControlMode":
-                vertx.eventBus().publish("dashboard.controlmode.switch", body);
+                vertx.eventBus().publish(SWITCH_MODE_LINE_ADDRESS, body);
                 break;
             case "updateWindowLevel":
                 if (!body.containsKey("level") || !(body.getValue("level") instanceof Integer)) {
                     sendError(400, response.setStatusMessage("Missing or invalid 'level' field"));
                     return;
                 }
-                vertx.eventBus().publish("dashboard.window.level", body);
+                vertx.eventBus().publish(CHANGE_WINDOW_LEVEL_LINE_ADDRESS, body);
                 break;
             default:
                 sendError(400, response.setStatusMessage("Unknown message type: " + messageType));
