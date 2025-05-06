@@ -1,6 +1,7 @@
 package communicationSerial;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
 import communicationSerial.api.*;
 
 public class WindowControlCommunicationClientImpl extends AbstractVerticle implements WindowControlCommunicationClient {
@@ -14,6 +15,7 @@ public class WindowControlCommunicationClientImpl extends AbstractVerticle imple
     // Port  and baudrate for serial communication.
     private static final String PORT = "COM3";
     private static final int BAUD_RATE = 9600;
+    private static final long DELAY = 150;
 
     private CommChannel serial;
 
@@ -53,35 +55,25 @@ public class WindowControlCommunicationClientImpl extends AbstractVerticle imple
              * chiamata di un metodo privato che scrive sul seriale di aggiornare la temperatura
              */
         });
-    }
 
-    
-
-    private class ReadAgent implements Runnable {
-
-        private final CommChannel channel;
-
-        public ReadAgent(CommChannel channel) { 
-            this.channel = channel;
-        }
-
-        @Override
-        public void run() {
-            if (serial.isMsgAvailable()) {
+        // Sets a periodic handler to read from the serial line,
+        // process the message once every DELAY ms.
+        vertx.setPeriodic(DELAY, id -> {
+            String msg = "";
+            if (this.serial.isMsgAvailable()) {
                 try {
-                    String cmd = serial.receiveMsg();
-                }
-                catch (InterruptedException e)
-                {
-                    System.out.println("Cannot read message from serial line");
-                }
-                /*
-                 * Parsing del messaggio, bisogna decidere se farlo interno al thread o farlo fuori con
-                 * un metodo privato e tenere compatto il codice dell'agent (a livello di performance non cambia niente).
-                 * il metodo che fa parsing poi sceglierà il verticle a cui mandare i dati coerentemente.
-                 */
+                    msg = this.serial.receiveMsg();
+                } catch (Exception e) {}
             }
-        }
-
+            // if msg is not empty
+            if (!msg.equals("")) {
+                parseMessage(msg);
+            }
+        });
     }
+
+    private void parseMessage(String msg) {
+        
+    }
+
 }
