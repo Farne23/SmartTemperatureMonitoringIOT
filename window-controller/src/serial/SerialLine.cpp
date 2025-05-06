@@ -20,7 +20,8 @@ void SerialLine::getData()
         strcpy(text, content.c_str());
         if (text[0] == 'M')
         {
-            this->changeStatus = true;
+            // take 'M' or 'A'
+            changeMode = content.c_str()[1];
         }
         if (text[0] == 'T')
         {
@@ -30,19 +31,15 @@ void SerialLine::getData()
         if (text[0] == 'P')
         {
             char* endptr = nullptr;
-            if (text[1] == 'M') {
-                this->manPerc = strtod(content.substring(2).c_str(), &endptr);
-            } else if (text[1] == 'A') {
-                this->autoPerc = strtod(content.substring(2).c_str(), &endptr);
-            }
-            
+            // convert from [100, 0] to [1.0, 0.0]
+            this->perc = (double)(strtol(content.substring(1).c_str(), &endptr, 10) / 100);
         }
     }
 }
 
-bool SerialLine::getChangeStatus()
+char SerialLine::getChangeStatus()
 {
-    return this->changeStatus;
+    return this->changeMode;
 }
 
 double SerialLine::getTemp()
@@ -50,13 +47,7 @@ double SerialLine::getTemp()
     return this->temp;
 }
 
-double SerialLine::getManPerc()
+double SerialLine::getPerc()
 {
-    return this->manPerc;
+    return this->perc;
 }
-
-double SerialLine::getAutoPerc()
-{
-    return this->autoPerc;
-}
-
