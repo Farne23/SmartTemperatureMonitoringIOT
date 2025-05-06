@@ -39,28 +39,26 @@ public class WindowControlCommunicationClientImpl extends AbstractVerticle imple
         // level.
         vertx.eventBus().consumer(UPDATE_OPENING_LEVEL, message -> {
             System.out.println("Messaggio ricevuto: " + message.body() + "%");
-            /*
-             * chiamata di un metodo privato che scrive sul seriale di cambiare livello
-             *  di apertura del servo
-             */
+            JsonObject body = (JsonObject) message.body();
+            serial.sendMsg("P" + body.getInteger("openingLevel"));
+            System.out.println("Sending: P" + body.getInteger("openingLevel"));
         });
 
         //Handler for messages sent by the dashboard to switch mode
         vertx.eventBus().consumer(UPDATE_CONTROL_MODE, message -> {
             System.out.println("Messaggio ricevuto: switch to" + message.body());
-            /*
-             * chiamata di un metodo privato che scrive sul seriale di cambiare modalità
-             */
+            JsonObject body = (JsonObject) message.body();
+            serial.sendMsg("M" + body.getString("controlMode"));
+            System.out.println("Sending: M" + body.getString("controlMode"));
         });
 
         // Handler for messages sent by the ESP to update temperature
         vertx.eventBus().consumer(UPDATE_TEMPERATURE_LINE, message -> {
             System.out.println("Messaggio ricevuto: " + message.body() + "°C");
-            /*
-             * chiamata di un metodo privato che scrive sul seriale di aggiornare la temperatura
-             */
+            JsonObject body = (JsonObject) message.body();
+            serial.sendMsg("T" + String.format("%.2f", body.getDouble("temperature")));
+            System.out.println("Sending: T" + String.format("%.2f", body.getDouble("temperature")));
         });
-
         // Sets a periodic handler to read from the serial line,
         // process the message once every DELAY ms.
         vertx.setPeriodic(DELAY, id -> {

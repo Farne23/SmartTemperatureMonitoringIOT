@@ -16,23 +16,24 @@ ControlMode WindowController::getMode() {
     return this->mode;
 }
 
+void WindowController::switchToMan() {
+    this->mode = MANUAL;
+}
+
+void WindowController::switchToAuto() {
+    this->mode = AUTO;
+}
+
 void WindowController::switchMode() {
     this->mode = this->mode == AUTO ? MANUAL : AUTO;
-    if (mode == AUTO) {
-        this->dashboardComm = false;
-    }
 }
 
 void WindowController::updateData() {
     this->line->getData();
 }
 
-double WindowController::getAutoPerc() {
-    return this->line->getAutoPerc();
-}
-
-double WindowController::getManPerc() {
-    return this->line->getManPerc();
+double WindowController::getPerc() {
+    return this->line->getPerc();
 }
 
 double WindowController::getTemp() {

@@ -9,5 +9,7 @@ ControlPanelTask::ControlPanelTask(WindowController *controller) {
 void ControlPanelTask::tick() {
     if (this->controller->switchReq()) {
         this->controller->switchMode();
+        // Write mode switch on serial line
+        Serial.println("S");
     } 
 }

@@ -8,15 +8,13 @@ class SerialLine {
         SerialLine();
         void sendData(double openPerc);
         void getData();
-        bool getChangeStatus();
+        char getChangeStatus();
         double getTemp();
-        double getManPerc();
-        double getAutoPerc();
+        double getPerc();
     private:
-        bool changeStatus;
+        char changeMode;
         double temp;
-        double manPerc;
-        double autoPerc;
+        double perc;
 };
 
 #endif
