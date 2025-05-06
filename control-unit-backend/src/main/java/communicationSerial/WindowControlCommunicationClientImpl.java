@@ -1,7 +1,10 @@
 package communicationSerial;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
+import io.vertx.core.json.JsonObject;
+
+import java.util.Map;
+
 import communicationSerial.api.*;
 
 public class WindowControlCommunicationClientImpl extends AbstractVerticle implements WindowControlCommunicationClient {
@@ -16,6 +19,8 @@ public class WindowControlCommunicationClientImpl extends AbstractVerticle imple
     private static final String PORT = "COM3";
     private static final int BAUD_RATE = 9600;
     private static final long DELAY = 150;
+    private static final String SWITCH_MSG = "S";
+    private static final int TO_PERC = 100;
 
     private CommChannel serial;
 
@@ -73,7 +78,22 @@ public class WindowControlCommunicationClientImpl extends AbstractVerticle imple
     }
 
     private void parseMessage(String msg) {
-        
+        if (msg.equals(SWITCH_MSG)) {
+            sendSwitch();
+        }
+        else {
+            // convert the level form [1, 0] to [100, 0]
+            sendOpenLv(Double.parseDouble(msg) * TO_PERC);
+        }
     }
 
+    private void sendOpenLv(double lv) {
+        // payload with the integer "level" field
+        vertx.eventBus().publish(WINDOW_LEVEL_CHANGE, new JsonObject(Map.of("level", (int)lv)));
+    }
+
+    private void sendSwitch() {
+        // No payload needed here.
+        vertx.eventBus().publish(CONTROL_MODE_SWITCH, new JsonObject());
+    }
 }
