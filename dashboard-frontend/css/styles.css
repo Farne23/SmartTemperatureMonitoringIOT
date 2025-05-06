@@ -1,4 +1,8 @@
 /* Use the variables */
+.hidden {
+  visibility: hidden;
+}
+
 body {
   background-color: white;
   color: black;

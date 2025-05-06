@@ -12,7 +12,10 @@ $box-color: white;
 $font : 'Roboto',
 sans-serif;
 
-/* Use the variables */
+.hidden{
+    visibility: hidden;
+}
+
 body {
     background-color: white;
     color: $textcolor;

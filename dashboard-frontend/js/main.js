@@ -20,15 +20,15 @@ const x = d3.scaleTime()
     .range([0, width]);
 
 const y = d3.scaleLinear()
-    .domain([12, d3.max(samples, s => s.temp)])
+    .domain([15, 26])
     .range([height, 0]);
 
-// Linea
+//Lines
 const line = d3.line()
     .x(s => x(s.date))
     .y(s => y(s.temp));
 
-// Assi
+//Axis
 g.append("g")
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x).ticks(5));
@@ -36,7 +36,7 @@ g.append("g")
 g.append("g")
     .call(d3.axisLeft(y));
 
-// Linea dati
+//Lines for data
 g.append("path")
     .datum(samples)
     .attr("fill", "none")
@@ -44,7 +44,7 @@ g.append("path")
     .attr("stroke-width", 2)
     .attr("d", line);
 
-// Pallini per ogni dato
+//Circles for every sample
 g.selectAll("circle")
     .data(samples)
     .enter().append("circle")
@@ -53,11 +53,10 @@ g.selectAll("circle")
     .attr("r", 4)
     .attr("fill", "orange");
 
-// Linee di soglia
+//Threshold lines
 const thresholds = [
-    { temp: 18, color: "green", label: "Soglia Bassa" },
-    { temp: 20, color: "orange", label: "Soglia Attenzione" },
-    { temp: 22, color: "red", label: "Soglia Alta" }
+    { temp: 20, color: "orange", label: "HOT STATE" },
+    { temp: 22, color: "red", label: "TOO HOT STATE" }
 ];
 
 g.selectAll(".threshold-line")
@@ -83,6 +82,32 @@ g.selectAll(".threshold-label")
     .attr("fill", s => s.color)
     .attr("font-size", "12px")
     .text(s => s.label);
+
+//Function updating the chart
+function updateChart() {
+    x.domain(d3.extent(samples, s => s.date));
+    g.select("g") 
+        .transition()
+        .call(d3.axisBottom(x).ticks(5));
+    g.select("path")
+        .datum(samples)
+        .transition()
+        .attr("d", line);
+
+    const circles = g.selectAll("circle")
+        .data(samples);
+
+    circles.enter()
+        .append("circle")
+        .attr("r", 4)
+        .attr("fill", "orange")
+        .merge(circles)
+        .transition()
+        .attr("cx", s => x(s.date))
+        .attr("cy", s => y(s.temp));
+
+    circles.exit().remove();
+}
 
 function updateLevel(level) {
     const bar = document.getElementById('currentLevel');
@@ -137,6 +162,11 @@ function handleDashboardData(data) {
     });
 
     document.getElementById("sysState").innerText = data.systemState;
+    if(data.systemState == "Alarm"){
+        document.getElementById("dangerBtn").classList.remove("hidden");
+    }else{
+        document.getElementById("dangerBtn").classList.add("hidden");
+    }
     document.getElementById("controlMode").innerText = data.controlMode;
     document.getElementById("avgTemp").innerText = data.avgTemperature;
     document.getElementById("minTemp").innerText = data.minTemperature;
@@ -146,4 +176,5 @@ function handleDashboardData(data) {
         date: new Date(sample.time),
         temp: sample.value
     }));
+    updateChart();
 }

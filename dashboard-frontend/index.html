@@ -23,15 +23,15 @@
             <div class="stats-container">
                 <div class="stats-box">
                     <p>Average</p>
-                    <p><span id="avgTemp">NORMAL</span> °C</p>
+                    <p><span id="avgTemp"></span> °C</p>
                 </div>
                 <div class="stats-box">
                     <p>Min</p>
-                    <p><span id="minTemp">NORMAL</span> °C</p>
+                    <p><span id="minTemp"></span> °C</p>
                 </div>
                 <div class="stats-box">
                     <p>Max</p>
-                    <p><span id="maxTemp">NORMAL</span> °C</p>
+                    <p><span id="maxTemp"></span> °C</p>
                 </div>
             </div>
             <svg width="600" height="400"></svg>
@@ -41,7 +41,7 @@
             <div class="controls-bar">
                 <div class="buttons-row">
                     <input type="button" class="primary" value="CHANGE MODE" />
-                    <input type="button" class="danger" value="SOLVE PROBLEM" />
+                    <input id="dangerBtn" type="button" class="danger hidden" value="SOLVE PROBLEM"/>
                 </div>
                 <div class="window-status-row">
                     <div class="window-status">
