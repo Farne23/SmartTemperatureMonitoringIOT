@@ -33,9 +33,9 @@ public class Main {
 		vertx.deployVerticle(MQTTModule);
 		
 		//HTTP communication module initialization
-		log("## Starting HTTP comunication module ...");
-		HTTPServer HTTPModule = new HTTPServer();
-		vertx.deployVerticle(HTTPModule);
+		//log("## Starting HTTP comunication module ...");
+		//HTTPServer HTTPModule = new HTTPServer();
+		//vertx.deployVerticle(HTTPModule);
     }
     
     private static void log(String message) {

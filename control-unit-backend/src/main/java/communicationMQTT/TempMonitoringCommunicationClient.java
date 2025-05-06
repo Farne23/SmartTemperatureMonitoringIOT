@@ -70,7 +70,6 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
         log(this.username);
         log(this.password);
 
-        System.out.println(vertx);
         this.client = MqttClient.create(vertx, options);
         
         client.connect(brokerPort, brokerAddress, c -> {
@@ -91,23 +90,24 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
 				                }
 				            });	                
       				}).subscribe(temperatureTopic, 2);
+                
+                //Handler for messages sent by the control unit specifyng new periods
+                // for sampling temperature
+                vertx.eventBus().consumer(FREQUENCY_BUS_ADDRESS, message -> {
+                    System.out.println("Messaggio ricevuto: " + message.body());
+                    //message.reply("Ciao Sender, messaggio ricevuto!");
+                    setFrequency(Integer.parseInt(message.body().toString()));
+                });
+                
+                //Periodic message to keep connection status up-
+                vertx.setPeriodic(CONNECTION_KEEP_UP_TIME, id -> {
+                   signalConnectionWorking();
+                });
             } else {
                 log("Connection failed: " + c.cause().getMessage());
             }
-        });  
-        
-        //Handler for messages sent by the control unit specifyng new periods
-        // for sampling temperature
-        vertx.eventBus().consumer(FREQUENCY_BUS_ADDRESS, message -> {
-            System.out.println("Messaggio ricevuto: " + message.body());
-            //message.reply("Ciao Sender, messaggio ricevuto!");
-            setFrequency(Integer.parseInt(message.body().toString()));
-        });
-        
-        //Periodic message to keep connection status up-
-        vertx.setPeriodic(CONNECTION_KEEP_UP_TIME, id -> {
-            signalConnectionWorking();
-          });
+        }); 
+        log("MQTT Agent setup complted");
 	}
 
 
@@ -139,7 +139,7 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
 	 * @param QoS
 	 */
 	private void publishMessage(String topic, String message, MqttQoS QoS) {
-    	log("Publishing a message");
+    	log("Publishing a message: " + message);
         client.publish(topic,
             Buffer.buffer(message),
             QoS,
