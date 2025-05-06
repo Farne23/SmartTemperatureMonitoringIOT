@@ -10,20 +10,25 @@ import utils.ControlMode;
 import utils.SystemState;
 import utils.TemperatureSample;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 /*
- * Class implementing the main functions of the Window Controller Subsystem,
+ * Class implementing the main functions of the Temperature Monitoring System 
+ * control unit.
  */
 public class ControlUnit extends AbstractVerticle {
 	
-	private static final int MAX_HISTORY_SAMPLES = 100;
-	private static final double TEMPERATURE_THRESHOLD_NORMAL = 20;
-	private static final double TEMPERATURE_THRESHOLD_HOT = 22;
+	private static final int MAX_HISTORY_SAMPLES = 15;
+	private static final double TEMPERATURE_THRESHOLD_NORMAL = 23;
+	private static final double TEMPERATURE_THRESHOLD_HOT = 26;
 	private static final long TOO_HOT_MAX_SECONDS = 7;
 	private static final int PERIOD_NORMAL = 3000;
 	private static final int PERIOD_HOT = 2000;
@@ -49,14 +54,14 @@ public class ControlUnit extends AbstractVerticle {
 	
 	private int openingLevel;
 	
-	private HashMap<LocalDateTime, Double> dailyMax = new HashMap<>();
-    private HashMap<LocalDateTime, Double> dailyMin = new HashMap<>();
-    private HashMap<LocalDateTime, Double> dailySum = new HashMap<>();
-    private HashMap<LocalDateTime, Integer> dailyCount = new HashMap<>();
-    private HashMap<LocalDateTime, Double> dailyAverage = new HashMap<>();
+	private HashMap<LocalDate, Double> dailyMax = new HashMap<>();
+    private HashMap<LocalDate, Double> dailyMin = new HashMap<>();
+    private HashMap<LocalDate, Double> dailySum = new HashMap<>();
+    private HashMap<LocalDate, Integer> dailyCount = new HashMap<>();
+    private HashMap<LocalDate, Double> dailyAverage = new HashMap<>();
 	
 	//Stack keeping track of the last N temperatures sampled
-	private Stack<TemperatureSample> temperatures = new Stack<TemperatureSample>();
+	private Queue<TemperatureSample> temperatures = new LinkedList<TemperatureSample>();
 	
 	public ControlUnit () {
 		this.openingLevel = 0;
@@ -114,9 +119,9 @@ public class ControlUnit extends AbstractVerticle {
 		TemperatureSample sample = new TemperatureSample(date,temperature);
 		updateStats(sample);
 		if(historyFull()){
-			temperatures.pop();
+			temperatures.poll();
 		}
-		temperatures.push(sample);	
+		temperatures.add(sample);	
 	}
 	
 	private boolean historyFull() {
@@ -158,11 +163,16 @@ public class ControlUnit extends AbstractVerticle {
 	 */
 	private void updateStats(TemperatureSample sample) {
         // Update Max Temperature
-		dailyMax.put(sample.getDateTime(), Math.max(dailyMax.getOrDefault(sample.getDateTime(), Double.MIN_VALUE), sample.getTemperature()));
-        dailyMin.put(sample.getDateTime(), Math.min(dailyMin.getOrDefault(sample.getDateTime(), Double.MAX_VALUE), sample.getTemperature()));
-        dailySum.put(sample.getDateTime(), dailySum.getOrDefault(sample.getDateTime(), 0.0) + sample.getTemperature());
-        dailyCount.put(sample.getDateTime(), dailyCount.getOrDefault(sample.getDateTime(), 0) + 1);
-        dailyAverage.put(sample.getDateTime(), dailySum.get(sample.getDateTime()) / dailyCount.get(sample.getDateTime()));
+		LocalDate key = sample.getDateTime().toLocalDate();
+		double temp = sample.getTemperature();
+
+		dailyMax.put(key, Math.max(dailyMax.getOrDefault(key, -Double.MAX_VALUE), temp));
+		dailyMin.put(key, Math.min(dailyMin.getOrDefault(key, Double.MAX_VALUE), temp));
+		dailySum.put(key, dailySum.getOrDefault(key, 0.0) + temp);
+		dailyCount.put(key, dailyCount.getOrDefault(key, 0) + 1);
+		dailyAverage.put(key, new BigDecimal(dailySum.get(key) / dailyCount.get(key))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue());
         checkStatus(sample);
         this.sendStatsDash();
         this.sendTemperatureToController(sample);
@@ -195,6 +205,9 @@ public class ControlUnit extends AbstractVerticle {
 				}
 			}	
 		}
+		if(controlMode == ControlMode.AUTOMATIC) {
+			changeWindowOpenLevel(getOpenLevel(sample.getTemperature()));
+		}
 		this.sendSystemStateDash();
 	}
 	
@@ -205,14 +218,14 @@ public class ControlUnit extends AbstractVerticle {
 	 * @param temperature
 	 */
 	private int getOpenLevel(double temperature) {
-		return (int)Math.round((temperature-TEMPERATURE_THRESHOLD_NORMAL)*100/(TEMPERATURE_THRESHOLD_HOT-TEMPERATURE_THRESHOLD_NORMAL));
+		return (int)Math.round((Math.max(TEMPERATURE_THRESHOLD_NORMAL, Math.min(temperature, TEMPERATURE_THRESHOLD_HOT))-TEMPERATURE_THRESHOLD_NORMAL)*100/(TEMPERATURE_THRESHOLD_HOT-TEMPERATURE_THRESHOLD_NORMAL));
 	}
 	
 	// Funzione per ottenere il valore per il giorno corrente da una HashMap
-	private <T> T getTodayValue(HashMap<LocalDateTime, T> map) {
+	private <T> T getTodayValue(HashMap<LocalDate, T> map) {
 	    LocalDate today = LocalDate.now();
-	    for (Map.Entry<LocalDateTime, T> entry : map.entrySet()) {
-	        if (entry.getKey().toLocalDate().equals(today)) {
+	    for (Map.Entry<LocalDate, T> entry : map.entrySet()) {
+	        if (entry.getKey().equals(today)) {
 	            return entry.getValue();
 	        }
 	    }

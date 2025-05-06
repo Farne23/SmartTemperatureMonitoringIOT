@@ -21,7 +21,7 @@ public class HTTPServer extends AbstractVerticle {
 	private static final String DASH_UPDATE_TEMPERATURE_STATS = "dash.update.temperature.stats";
 	private static final String DASH_UPDATE_CONTROL_MODE = "update.control.mode.line";
 	private static final String DASH_UPDATE_SYSTEM_STATE = "dash.update.system.state";
-	private static final String DASH_UPDATE_OPENING_LEVEL = "update.opening.level";
+	private static final String DASH_UPDATE_OPENING_LEVEL = "update.opening.level.line";
 	private static String CHANGE_WINDOW_LEVEL_LINE_ADDRESS = "window.level.change";
 	private static String SWITCH_MODE_LINE_ADDRESS = "controlmode.switch";
 	private static String STOP_ALARM_LINE_ADDRESS = "dashboard.alarm.stop";
@@ -34,10 +34,10 @@ public class HTTPServer extends AbstractVerticle {
     private double maxTemperature;
     private double minTemperature;
     private double avgTemperature;
-    private ControlMode controlMode;
-    private SystemState systemState;
+    private ControlMode controlMode = ControlMode.AUTOMATIC;
+    private SystemState systemState = SystemState.NORMAL;
     private int openingLevel;
-    private HashSet<TemperatureSample> temperatures;
+    private HashSet<TemperatureSample> temperatures = new HashSet<TemperatureSample>();
 
     @Override
     public void start() {        
@@ -170,6 +170,8 @@ public class HTTPServer extends AbstractVerticle {
             }
         }
         data.put("temperatures", temperaturesArray);
+        
+        System.out.println(data);
 
         routingContext.response()
             .putHeader("content-type", "application/json")
