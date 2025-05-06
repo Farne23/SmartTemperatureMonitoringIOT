@@ -78,9 +78,9 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
                 client.publishHandler(
                 		//Handler for temperatures messages
                 		s -> {				
-							System.out.println("New message in topic: " + s.topicName());
-					        System.out.println("Content (as string): " + s.payload().toString());
-					        System.out.println("QoS: " + s.qosLevel());
+							//System.out.println("New message in topic: " + s.topicName());
+					        //System.out.println("Content (as string): " + s.payload().toString());
+					        //System.out.println("QoS: " + s.qosLevel());
 					          
 					        vertx.eventBus().request("temperatures.line", s.payload(), reply -> {
 				                if (reply.succeeded()) {
@@ -94,8 +94,7 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
                 //Handler for messages sent by the control unit specifyng new periods
                 // for sampling temperature
                 vertx.eventBus().consumer(FREQUENCY_BUS_ADDRESS, message -> {
-                    System.out.println("Messaggio ricevuto: " + message.body());
-                    //message.reply("Ciao Sender, messaggio ricevuto!");
+                    log("New period received from the control unit: " + message.body());
                     setFrequency(Integer.parseInt(message.body().toString()));
                 });
                 
@@ -107,7 +106,7 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
                 log("Connection failed: " + c.cause().getMessage());
             }
         }); 
-        log("MQTT Agent setup complted");
+        log("MQTT Agent setup completed");
 	}
 
 

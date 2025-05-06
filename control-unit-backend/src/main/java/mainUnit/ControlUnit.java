@@ -12,6 +12,7 @@ import utils.TemperatureSample;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public class ControlUnit extends AbstractVerticle {
     private HashMap<LocalDateTime, Double> dailyAverage = new HashMap<>();
 	
 	//Stack keeping track of the last N temperatures sampled
-	private Stack<TemperatureSample> temperatures;
+	private Stack<TemperatureSample> temperatures = new Stack<TemperatureSample>();
 	
 	public ControlUnit () {
 		this.openingLevel = 0;
@@ -67,16 +68,17 @@ public class ControlUnit extends AbstractVerticle {
 		 * Once they will be read, it will try to add them to the temperatures stack
 		 * */
 		 vertx.eventBus().consumer(TEMPERATURES_LINE_ADDRESS, message -> {
-	            System.out.println("Messaggio ricevuto: " + message.body());
+	            System.out.println("Received: " + message.body());
 				try {
 					JsonObject json = new JsonObject(message.body().toString());
-					LocalDateTime timestamp = LocalDateTime.parse(json.getString("timestamp"));
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+					LocalDateTime timestamp = LocalDateTime.parse(json.getString("time"),formatter);
 					double temperature = json.getDouble("temperature");
 					communicateTemperature(timestamp,temperature);	
-					JsonObject response = new JsonObject().put("status", "received");
-					message.reply(response);
+					//JsonObject response = new JsonObject().put("status", "received");
+					//message.reply(response);
 				} catch (DecodeException e) {
-					System.out.println("JSON non riconoscibile");
+					System.out.println("JSON unrecongnizable");
 					e.printStackTrace();
 				}		
 	        });
