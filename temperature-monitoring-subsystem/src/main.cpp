@@ -78,6 +78,8 @@ void TaskTemperaturecode(void *parameter)
             {
                 mqttClient->sendTemperature(temperature);
                 period = mqttClient->getPeriod();
+            }else{
+                log("Control unit is not responding, sampling paused...");
             }
             xSemaphoreGive(mqttMutex);
         }
