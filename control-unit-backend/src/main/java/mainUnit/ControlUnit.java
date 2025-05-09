@@ -193,7 +193,6 @@ public class ControlUnit extends AbstractVerticle {
 					systemState = SystemState.HOT;
 					changeFrequency(PERIOD_HOT);
 				}
-				changeWindowOpenLevel(getOpenLevel(sample.getTemperature()));
 			} else if (sample.getTemperature() > TEMPERATURE_THRESHOLD_HOT) {
 				openWindow();
 				if(systemState!=SystemState.TOO_HOT) {
