@@ -114,7 +114,7 @@ assignment-03/
 
 ## Authors
 - **Michele Farneti** (Email: michele.farneti@studio.unibo.it)
-- **Samuele Casadei** (Email: [..DA DEFINIRE..])
+- **Samuele Casadei** (Email: samuele.casadei3@studio.unibo.it)
 
 ## License
 This project is licensed under the **MIT License**.
