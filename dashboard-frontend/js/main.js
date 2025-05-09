@@ -2,7 +2,7 @@
 const POLL_INTERVAL_MS = 500;
 
 //Address used for HTTP comunication with the main control unit.
-const CONTROL_UNIT_ADDRESS = "https://9671-137-204-20-123.ngrok-free.app";
+const CONTROL_UNIT_ADDRESS = "https://bbfb-137-204-20-123.ngrok-free.app";
 
 //Array for temperatures samples
 let samples = [];
@@ -143,7 +143,7 @@ async function fetchDashboardData() {
         console.error('Failed to fetch dashboard data:', error);
     }
 }
-setInterval(() => fetchDashboardData(), 1000);
+setInterval(() => fetchDashboardData(), 200);
 
 //Function handling the updates received from the main unit.
 function handleDashboardData(data) {
@@ -175,4 +175,28 @@ function handleDashboardData(data) {
         temp: sample.value
     }));
     updateChart();
+}
+
+document.getElementById("switchModeBtn").addEventListener("click", () => {
+    sendControl("switchControlMode");
+});
+
+async function sendControl(controlType){
+    try {
+        const response = await fetch(CONTROL_UNIT_ADDRESS + "/api/commands", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "ngrok-skip-browser-warning": "true"
+            },
+            body: JSON.stringify({
+                type: controlType
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Failed to fetch', error);
+    }
 }

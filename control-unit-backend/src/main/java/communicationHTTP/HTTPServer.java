@@ -58,7 +58,7 @@ public class HTTPServer extends AbstractVerticle {
     	router.route().handler(BodyHandler.create());
 
     	//Handlers for get and post methods.
-    	router.post("/api/data").handler(this::handleDashaboardControls);
+    	router.post("/api/commands").handler(this::handleDashboardControls);
     	router.get("/api/data").handler(this::handleGetData);
   
         vertx
@@ -116,7 +116,8 @@ public class HTTPServer extends AbstractVerticle {
     /* Handler of post messages received from the dashboard, acting as a client.
      * It checks the control sent trough the type parameter of the json message received
      * and alerts the control unit through messages sent via vertex message lines*/
-    private void handleDashaboardControls(RoutingContext routingContext) {
+    private void handleDashboardControls(RoutingContext routingContext) {
+    	log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     	HttpServerResponse response = routingContext.response();
         JsonObject body = routingContext.getBodyAsJson();
 
