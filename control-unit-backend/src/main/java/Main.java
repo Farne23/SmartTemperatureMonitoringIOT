@@ -15,6 +15,7 @@ import mainUnit.ControlUnit;
  * using the Vert.x framework.
  * 
  * Authors: Michele Farneti, Samuele Casadei
+ * Mails: michele.farneti@studio.unibo.it, samuele.casadei3@studio.unibo.it
  */
 
 public class Main {
