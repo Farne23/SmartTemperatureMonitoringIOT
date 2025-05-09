@@ -1,5 +1,5 @@
 //Poll interval of the dashboard updates
-const POLL_INTERVAL_MS = 500;
+const POLL_INTERVAL_MS = 100;
 
 //Address used for HTTP comunication with the main control unit.
 const CONTROL_UNIT_ADDRESS = "https://bbfb-137-204-20-123.ngrok-free.app";
@@ -83,6 +83,7 @@ function updateChart() {
     g.select(".data-line")
         .datum(samples)
         .transition()
+        .duration(100)
         .attr("d", line);
 
     const circles = g.selectAll("circle.data-point")
@@ -93,36 +94,35 @@ function updateChart() {
         .attr("class", "data-point")
         .attr("r", 4)
         .attr("fill", "orange")
+        .attr("cx", s => x(s.date))
+        .attr("cy", s => {
+            return s === samples[samples.length - 1] ? y(s.temp) - 200 : y(s.temp);
+        })
         .merge(circles)
         .transition()
+        .duration(200)
+        .ease(d3.easeLinear)
         .attr("cx", s => x(s.date))
         .attr("cy", s => y(s.temp));
 
     circles.exit().remove();
 }
 
-function updateLevel(level) {
+function updateLevelBar(level) {
     const bar = document.getElementById('currentLevel');
     bar.style.height = level + '%';
     document.getElementById("openingLevel").innerText = level;
 }
 
-function handleSliderChange() {
-    const slider = document.getElementById('setLevelSlider');
-    const newLevel = slider.value;
-    console.log("Nuovo livello selezionato:", newLevel);
-    updateLevel(newLevel);
-}
-
 function updateLevelSlider(newLevel) {
     const slider = document.getElementById('setLevelSlider');
-    slider.value = newLevel;
-    updateLevel(newLevel)
+    //slider.value = newLevel;
+    updateLevelBar(newLevel)
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const slider = document.getElementById('setLevelSlider');
-    slider.addEventListener('input', handleSliderChange);
+const slider = document.getElementById('setLevelSlider');
+slider.addEventListener('input', () => {
+    const newLevel = slider.value;
+    debouncedSendWindowLevel(newLevel);
 });
 
 //Function retrieving data from the main unit.
@@ -137,43 +137,84 @@ async function fetchDashboardData() {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log(data);
         handleDashboardData(data);
     } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
     }
 }
-setInterval(() => fetchDashboardData(), 200);
+setInterval(() => fetchDashboardData(), POLL_INTERVAL_MS);
 
 //Function handling the updates received from the main unit.
 function handleDashboardData(data) {
-    //LOGGING
-    // console.log('Max Temperature:', data.maxTemperature);
-    // console.log('Min Temperature:', data.minTemperature);
-    // console.log('Avg Temperature:', data.avgTemperature);
-    // console.log('Control Mode:', data.controlMode);
-    // console.log('System State:', data.systemState);
-    // console.log('Opening Level:', data.openingLevel);
-    // console.log('Temperatures (last N samples):');
-    // data.temperatures.forEach(sample => {
-    //     console.log(` - Time: ${sample.time}, Value: ${sample.value}`);
-    // });
 
-    document.getElementById("sysState").innerText = data.systemState;
-    if (data.systemState == "ALARM") {
-        document.getElementById("dangerBtn").classList.remove("hidden");
-    } else {
-        document.getElementById("dangerBtn").classList.add("hidden");
+    const sysStateTxt = document.getElementById("sysState");
+    sysStateTxt.innerHTML = "&nbsp;" + data.systemState.replace(/_/g, ' ') + "&nbsp;";
+
+    if (data.controlMode == "AUTOMATIC") {
+
     }
-    document.getElementById("controlMode").innerText = data.controlMode;
+    switch (data.systemState) {
+        case "ALARM":
+            document.getElementById("dangerBtn").classList.remove("hidden");
+            sysStateTxt.style.color = "white";
+            sysStateTxt.style.backgroundColor = "red";
+            break;
+        case "NORMAL":
+            document.getElementById("dangerBtn").classList.add("hidden");
+            sysStateTxt.style.color = "green";
+            sysStateTxt.style.backgroundColor = "white";
+            break;
+        case "HOT":
+            document.getElementById("dangerBtn").classList.add("hidden");
+            sysStateTxt.style.color = "orange";
+            sysStateTxt.style.backgroundColor = "white";
+            break;
+        case "TOO_HOT":
+            document.getElementById("dangerBtn").classList.add("hidden");
+            sysStateTxt.style.color = "red";
+            sysStateTxt.style.backgroundColor = "white";
+            break;
+        default:
+            document.getElementById("dangerBtn").classList.add("hidden");
+            sysStateTxt.style.color = "gray";
+            sysStateTxt.style.backgroundColor = "white";
+            break;
+    }
+
+    const oldMode = document.getElementById("controlMode").innerText;
+    const modeTxt = document.getElementById("controlMode");
+    modeTxt.innerText = data.controlMode;
+    if (data.controlMode == "AUTOMATIC") {
+        slider.disabled = true;
+        slider.value = 0;
+        modeTxt.style.color = "green";
+    } else {
+        modeTxt.style.color = "red";
+        slider.disabled = false;
+        if (oldMode == "AUTOMATIC") {
+            slider.value = data.openingLevel;
+        }
+    }
     document.getElementById("avgTemp").innerText = data.avgTemperature;
     document.getElementById("minTemp").innerText = data.minTemperature;
     document.getElementById("maxTemp").innerText = data.maxTemperature;
-    updateLevelSlider(data.openingLevel);
-    samples = data.temperatures.map(sample => ({
-        date: new Date(sample.time),
-        temp: sample.value
-    }));
+    updateLevelBar(data.openingLevel);
+    
+    const existingSampleMap = new Map(samples.map(s => [s.date.getTime(), s]));
+    //Update of the samples array avoiding to reset it completely.
+    samples = data.temperatures.map(sample => {
+        const timeMs = new Date(sample.time).getTime();
+        if (existingSampleMap.has(timeMs)) {
+            const existing = existingSampleMap.get(timeMs);
+            existing.temp = sample.value; 
+            return existing;
+        } else {
+            return {
+                date: new Date(sample.time),
+                temp: sample.value
+            };
+        }
+    });
     updateChart();
 }
 
@@ -181,7 +222,11 @@ document.getElementById("switchModeBtn").addEventListener("click", () => {
     sendControl("switchControlMode");
 });
 
-async function sendControl(controlType){
+document.getElementById("dangerBtn").addEventListener("click", () => {
+    sendControl("stopAlarm");
+});
+
+async function sendControl(controlType) {
     try {
         const response = await fetch(CONTROL_UNIT_ADDRESS + "/api/commands", {
             method: 'POST',
@@ -200,3 +245,36 @@ async function sendControl(controlType){
         console.error('Failed to fetch', error);
     }
 }
+
+async function sendWindowLevel(newLevel) {
+    try {
+        const response = await fetch(CONTROL_UNIT_ADDRESS + "/api/commands", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "ngrok-skip-browser-warning": "true"
+            },
+            body: JSON.stringify({
+                type: "updateWindowLevel",
+                level: parseInt(newLevel, 10)
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Failed to fetch', error);
+    }
+}
+
+function debounce(func, delay) {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(null, args);
+        }, delay);
+    };
+}
+
+const debouncedSendWindowLevel = debounce(sendWindowLevel, 100);

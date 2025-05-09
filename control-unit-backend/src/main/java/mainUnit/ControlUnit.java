@@ -102,6 +102,11 @@ public class ControlUnit extends AbstractVerticle {
 		  * switch control mode*/
 		 vertx.eventBus().consumer(SWITCH_MODE_LINE_ADDRESS, message -> {
 			 this.controlMode = this.controlMode.switchMode();
+			 if(this.controlMode == ControlMode.MANUAL) {
+				 this.systemState = SystemState.DISABLED;
+			 }else {
+				 this.systemState = SystemState.reset();
+			 }
 			 this.sendControlMode();
 			 });
 		 
@@ -183,28 +188,28 @@ public class ControlUnit extends AbstractVerticle {
 	 * is comumnicated
 	 */
 	private void checkStatus(TemperatureSample sample) {
-		if(systemState != SystemState.ALARM) {	
-			if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_NORMAL && systemState != SystemState.NORMAL) {
-				systemState = SystemState.NORMAL;
-				closeWindow();
-				changeFrequency(PERIOD_NORMAL);
-			} else if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_HOT && sample.getTemperature() > TEMPERATURE_THRESHOLD_NORMAL ) {
-				if(systemState != SystemState.HOT) {
-					systemState = SystemState.HOT;
-					changeFrequency(PERIOD_HOT);
-				}
-			} else if (sample.getTemperature() > TEMPERATURE_THRESHOLD_HOT) {
-				openWindow();
-				if(systemState!=SystemState.TOO_HOT) {
-					systemState = SystemState.TOO_HOT;
-					tooHotStartTime = sample.getDateTime();
-					changeFrequency(PERIOD_TOO_HOT);
-				}else if (tooHotStartTime.plusSeconds(TOO_HOT_MAX_SECONDS).isBefore(sample.getDateTime())) {
-					systemState = SystemState.ALARM;
-				}
-			}	
-		}
 		if(controlMode == ControlMode.AUTOMATIC) {
+			if(systemState != SystemState.ALARM) {	
+				if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_NORMAL && systemState != SystemState.NORMAL) {
+					systemState = SystemState.NORMAL;
+					//closeWindow();
+					changeFrequency(PERIOD_NORMAL);
+				} else if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_HOT && sample.getTemperature() > TEMPERATURE_THRESHOLD_NORMAL ) {
+					if(systemState != SystemState.HOT) {
+						systemState = SystemState.HOT;
+						changeFrequency(PERIOD_HOT);
+					}
+				} else if (sample.getTemperature() > TEMPERATURE_THRESHOLD_HOT) {
+					//openWindow();
+					if(systemState!=SystemState.TOO_HOT) {
+						systemState = SystemState.TOO_HOT;
+						tooHotStartTime = sample.getDateTime();
+						changeFrequency(PERIOD_TOO_HOT);
+					}else if (tooHotStartTime.plusSeconds(TOO_HOT_MAX_SECONDS).isBefore(sample.getDateTime())) {
+						systemState = SystemState.ALARM;
+					}
+				}	
+			}
 			changeWindowOpenLevel(getOpenLevel(sample.getTemperature()));
 		}
 		this.sendSystemStateDash();

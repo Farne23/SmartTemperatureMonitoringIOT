@@ -117,7 +117,6 @@ public class HTTPServer extends AbstractVerticle {
      * It checks the control sent trough the type parameter of the json message received
      * and alerts the control unit through messages sent via vertex message lines*/
     private void handleDashboardControls(RoutingContext routingContext) {
-    	log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     	HttpServerResponse response = routingContext.response();
         JsonObject body = routingContext.getBodyAsJson();
 
