@@ -199,7 +199,7 @@ function handleDashboardData(data) {
     document.getElementById("minTemp").innerText = data.minTemperature;
     document.getElementById("maxTemp").innerText = data.maxTemperature;
     updateLevelBar(data.openingLevel);
-    
+
     const existingSampleMap = new Map(samples.map(s => [s.date.getTime(), s]));
     //Update of the samples array avoiding to reset it completely.
     samples = data.temperatures.map(sample => {
@@ -267,6 +267,7 @@ async function sendWindowLevel(newLevel) {
     }
 }
 
+//Debounce function neeeded to avoid sending lots of useless messages when the slider level is changing.
 function debounce(func, delay) {
     let timeoutId;
     return (...args) => {
