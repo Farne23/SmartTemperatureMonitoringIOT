@@ -97,12 +97,12 @@ assignment-03/
 
 ### Control Unit Subsystem
 - Runs on a PC
-- Can be implemented using **[..DA DEFINIRE..]** programming language
+- Implemented using Java and the Vertex framework
 - Uses MQTT (Temperature Monitoring), HTTP (Dashboard), Serial (Window Controller)
 
 ### Dashboard Subsystem
 - Runs on a PC
-- Can be implemented using **[..DA DEFINIRE..]** web technologies
+- Implemented using HTML, Javascript and CSS
 - Uses HTTP API for communication with Control Unit
 
 ## Installation & Usage
