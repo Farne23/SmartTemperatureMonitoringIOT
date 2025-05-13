@@ -2,7 +2,7 @@
 const POLL_INTERVAL_MS = 100;
 
 //Address used for HTTP comunication with the main control unit.
-const CONTROL_UNIT_ADDRESS = "https://7551-137-204-20-123.ngrok-free.app";
+const CONTROL_UNIT_ADDRESS = "https://ca07-109-54-180-105.ngrok-free.app";
 
 //Array for temperatures samples
 let samples = [];
@@ -137,6 +137,7 @@ async function fetchDashboardData() {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
+        console.log(data);
         handleDashboardData(data);
     } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
