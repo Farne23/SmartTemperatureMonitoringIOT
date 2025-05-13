@@ -1,7 +1,5 @@
 package mainUnit;
 
-import java.util.Stack;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
@@ -30,9 +28,8 @@ public class ControlUnit extends AbstractVerticle {
 	private static final double TEMPERATURE_THRESHOLD_NORMAL = 23;
 	private static final double TEMPERATURE_THRESHOLD_HOT = 26;
 	private static final long TOO_HOT_MAX_SECONDS = 7;
-	private static final int PERIOD_NORMAL = 3000;
-	private static final int PERIOD_HOT = 2000;
-	private static final int PERIOD_TOO_HOT = 1000;
+	private static final int PERIOD_NORMAL = 2000;
+	private static final int PERIOD_HOT = 1000;
 	private static String FREQUENCY_LINE_ADDRESS = "frequency.line";
 	private static String TEMPERATURES_LINE_ADDRESS = "temperatures.line";
 	private static String OPENLEVEL_LINE_ADDRESS = "openlevel.line";
@@ -73,7 +70,7 @@ public class ControlUnit extends AbstractVerticle {
 		 * Once they will be read, it will try to add them to the temperatures stack
 		 * */
 		 vertx.eventBus().consumer(TEMPERATURES_LINE_ADDRESS, message -> {
-	            System.out.println("Received: " + message.body());
+	            log("Received new temperature: " + message.body());
 				try {
 					JsonObject json = new JsonObject(message.body().toString());
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -82,8 +79,9 @@ public class ControlUnit extends AbstractVerticle {
 					communicateTemperature(timestamp,temperature);	
 					//JsonObject response = new JsonObject().put("status", "received");
 					//message.reply(response);
+					message.reply("Success");
 				} catch (DecodeException e) {
-					System.out.println("JSON unrecongnizable");
+					log("JSON unrecongnizable");
 					e.printStackTrace();
 				}		
 	        });
@@ -96,27 +94,30 @@ public class ControlUnit extends AbstractVerticle {
 			    if(controlMode == ControlMode.MANUAL) {
 			    	changeWindowOpenLevel(level);
 			    }
+			    message.reply("Success");
 			});
 		 
 		 /*Consumer for messages received from the server or the controller system allerting that the user is trying to
 		  * switch control mode*/
 		 vertx.eventBus().consumer(SWITCH_MODE_LINE_ADDRESS, message -> {
-			 this.controlMode = this.controlMode.switchMode();
-			 if(this.controlMode == ControlMode.MANUAL) {
-				 this.systemState = SystemState.DISABLED;
-			 }else {
-				 this.systemState = SystemState.reset();
-			 }
-			 this.sendControlMode();
+				 this.controlMode = this.controlMode.switchMode();
+				 if(this.controlMode == ControlMode.MANUAL) {
+					 this.systemState = SystemState.DISABLED;
+				 }else {
+					 this.systemState = SystemState.reset();
+				 }
+				 this.sendControlMode();
+				 message.reply("Success");
 			 });
 		 
 		 /*Consumer for messages received from the server allerting that the user has 
 		  * solved the problem and wants to go back to the normal system state.*/
 		 vertx.eventBus().consumer(DASH_STOP_ALARM_LINE_ADDRESS, message -> {
-			 if(this.systemState == SystemState.ALARM) {
-				 this.systemState = SystemState.NORMAL;
-				 this.sendSystemStateDash();
-			 }
+			 	if(this.systemState == SystemState.ALARM) {
+					 this.systemState = SystemState.NORMAL;
+					 this.sendSystemStateDash();
+				 }
+			 	message.reply("Success");
 			 });
 	}
 	
@@ -204,7 +205,6 @@ public class ControlUnit extends AbstractVerticle {
 					if(systemState!=SystemState.TOO_HOT) {
 						systemState = SystemState.TOO_HOT;
 						tooHotStartTime = sample.getDateTime();
-						changeFrequency(PERIOD_TOO_HOT);
 					}else if (tooHotStartTime.plusSeconds(TOO_HOT_MAX_SECONDS).isBefore(sample.getDateTime())) {
 						systemState = SystemState.ALARM;
 					}
@@ -277,6 +277,10 @@ public class ControlUnit extends AbstractVerticle {
 	private void sendTemperatureToController(TemperatureSample sample) {
 		vertx.eventBus().publish(CONTROLLER_SIGNAL_TEMPERATURE_LINE_ADDRESS, new JsonObject()
 		        .put("temperature", sample.getTemperature()));
+	}
+	
+	private void log(String message) {
+		System.out.println("[CONTROL UNIT CORE]: " + message);
 	}
 	
 }

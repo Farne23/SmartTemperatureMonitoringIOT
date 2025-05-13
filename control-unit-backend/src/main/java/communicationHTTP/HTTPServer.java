@@ -86,6 +86,7 @@ public class HTTPServer extends AbstractVerticle {
                 }
             }
             log("Updated stats and temperatures.");
+            message.reply("Success");
         });
 
         vertx.eventBus().consumer(DASH_UPDATE_CONTROL_MODE, message -> {
@@ -95,6 +96,7 @@ public class HTTPServer extends AbstractVerticle {
                 controlMode = ControlMode.valueOf(modeStr);
                 System.out.println("Updated control mode: " + controlMode);
             }
+            message.reply("Success");
         });
 
         vertx.eventBus().consumer(DASH_UPDATE_SYSTEM_STATE, message -> {
@@ -102,14 +104,16 @@ public class HTTPServer extends AbstractVerticle {
             String stateStr = body.getString("systemState");
             if (stateStr != null) {
                 systemState = SystemState.valueOf(stateStr);
-                System.out.println("Updated system state: " + systemState);
+                //System.out.println("Updated system state: " + systemState);
             }
+            message.reply("Success");
         });
 
         vertx.eventBus().consumer(DASH_UPDATE_OPENING_LEVEL, message -> {
             JsonObject body = (JsonObject) message.body();
             openingLevel = body.getInteger("openingLevel", 0);
-            System.out.println("Updated opening level: " + openingLevel);
+            //System.out.println("Updated opening level: " + openingLevel);
+            message.reply("Success");
         });
     }
     
@@ -170,8 +174,6 @@ public class HTTPServer extends AbstractVerticle {
             }
         }
         data.put("temperatures", temperaturesArray);
-        
-        System.out.println(data);
 
         routingContext.response()
             .putHeader("content-type", "application/json")

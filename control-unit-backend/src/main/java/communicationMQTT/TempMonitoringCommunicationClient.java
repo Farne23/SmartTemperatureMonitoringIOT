@@ -18,6 +18,10 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
 	private static final int CONNECTION_KEEP_UP_TIME = 5000; //The period of the periodic meessage for communicating that connection is still on
 	private static String FREQUENCY_BUS_ADDRESS = "frequency.line";
 	
+	private static final int MAX_RETRIES = 5;
+	private static final long RETRY_DELAY_MS = 5000;
+	private int retryCount = 0;
+	
 	private final String brokerAddress;
     private final int brokerPort;
     private final String username;
@@ -65,48 +69,60 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
             .setSsl(true)
             .setTrustAll(true);  //Standard HiveMQV version doesn't allow certificates
         
-        log(this.brokerAddress);
-        log(Integer.toString( this.brokerPort));
-        log(this.username);
-        log(this.password);
+        log("Connesso a " + this.brokerAddress);
+        //log(Integer.toString( this.brokerPort));
+        //log(this.username);
+        //log(this.password);
 
         this.client = MqttClient.create(vertx, options);
+        attemptConnection();
         
-        client.connect(brokerPort, brokerAddress, c -> {
-            if (c.succeeded()) {
-                log("Connected successfully");
-                client.publishHandler(
-                		//Handler for temperatures messages
-                		s -> {				
-							//System.out.println("New message in topic: " + s.topicName());
-					        //System.out.println("Content (as string): " + s.payload().toString());
-					        //System.out.println("QoS: " + s.qosLevel());
-					          
-					        vertx.eventBus().request("temperatures.line", s.payload(), reply -> {
-				                if (reply.succeeded()) {
-				                    System.out.println("SenderVerticle got reply: " + reply.result().body());
-				                } else {
-				                    System.err.println("SenderVerticle failed to receive reply.");
-				                }
-				            });	                
-      				}).subscribe(temperatureTopic, 2);
-                
-                //Handler for messages sent by the control unit specifyng new periods
-                // for sampling temperature
-                vertx.eventBus().consumer(FREQUENCY_BUS_ADDRESS, message -> {
-                    log("New period received from the control unit: " + message.body());
-                    setFrequency(Integer.parseInt(message.body().toString()));
-                });
-                
-                //Periodic message to keep connection status up-
-                vertx.setPeriodic(CONNECTION_KEEP_UP_TIME, id -> {
-                   signalConnectionWorking();
-                });
-            } else {
-                log("Connection failed: " + c.cause().getMessage());
-            }
-        }); 
-        log("MQTT Agent setup completed");
+      
+	}
+	
+	/*
+	 * Function used to attempt connection to the MQTT broker, 
+	 * gets called repeatedly in case the connection keeps failing
+	 */
+	private void attemptConnection() {
+		  log("Trying to connect to " + this.brokerAddress + ":" + this.brokerPort);
+
+		    client.connect(brokerPort, brokerAddress, c -> {
+		        if (c.succeeded()) {
+		            log("Connected successfully to MQTT broker.");
+		            retryCount = 0;
+
+		            client.publishHandler(s -> {
+		                vertx.eventBus().request("temperatures.line", s.payload(), reply -> {
+		                    if (!reply.succeeded()) {
+		                        System.err.println("SenderVerticle failed to receive reply.");
+		                    }
+		                });
+		            }).subscribe(temperatureTopic, 2);
+
+		            vertx.eventBus().consumer(FREQUENCY_BUS_ADDRESS, message -> {
+		                setFrequency(Integer.parseInt(message.body().toString()));
+		                message.reply("Success");
+		            });
+
+		            vertx.setPeriodic(CONNECTION_KEEP_UP_TIME, id -> {
+		                signalConnectionWorking();
+		            });
+		        } else {
+		            log("Connection failed: " + c.cause().getMessage());
+
+		            if (retryCount < MAX_RETRIES) {
+		                retryCount++;
+		                long delay = RETRY_DELAY_MS * retryCount;
+		                log("Retrying in " + delay + "ms (attempt " + retryCount + "/" + MAX_RETRIES + ")...");
+
+		                vertx.setTimer(delay, id -> attemptConnection());
+		            } else {
+		                log("Max retry attempts reached. Giving up.. ");
+		            }
+		        }
+		    });
+		
 	}
 
 
@@ -138,7 +154,7 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
 	 * @param QoS
 	 */
 	private void publishMessage(String topic, String message, MqttQoS QoS) {
-    	log("Publishing a message: " + message);
+    	//log("Publishing a message: " + message);
         client.publish(topic,
             Buffer.buffer(message),
             QoS,
