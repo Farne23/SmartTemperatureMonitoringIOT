@@ -17,7 +17,7 @@ void WindowRegTask::tick() {
         }
         this->controller->displayAuto(this->controller->getPerc());
         // Write open percantege on serial line [1, 0]
-        Serial.println(this->controller->getPerc());
+        MsgService.sendMsg(String(this->controller->getPerc()));
     }
     if (this->controller->getMode() == MANUAL) {
         double temp = this->controller->getTemp();
@@ -34,6 +34,6 @@ void WindowRegTask::tick() {
         this->controller->setPerc(perc);
         this->controller->displayMan(perc, temp);
         // Write open percantege on serial line [1, 0]
-        Serial.println(perc);
+        MsgService.sendMsg(String(perc));
     }
 }
