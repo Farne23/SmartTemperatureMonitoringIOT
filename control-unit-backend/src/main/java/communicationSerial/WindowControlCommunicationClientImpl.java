@@ -70,7 +70,12 @@ public class WindowControlCommunicationClientImpl extends AbstractVerticle imple
             }
             // if msg is not empty
             if (!msg.equals("")) {
-                parseMessage(msg);
+                // if (msg.contains("pong")) {
+                //     System.out.println("[Sent to serial]: " + msg.replace("pong", ""));
+                // }
+                // parseMessage(msg);
+                // JUST FOR TESTING!!!
+                System.out.println("[From serial]: " + msg);
             }
         });
     }
