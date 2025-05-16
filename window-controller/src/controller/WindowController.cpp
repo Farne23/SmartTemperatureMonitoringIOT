@@ -40,7 +40,7 @@ double WindowController::getTemp() {
     return this->line->getTemp();
 }
 
-bool WindowController::getSwitch() {
+char WindowController::getSwitch() {
     return this->line->getChangeStatus();
 }
 

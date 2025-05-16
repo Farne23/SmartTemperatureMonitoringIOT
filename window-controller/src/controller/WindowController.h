@@ -31,7 +31,7 @@ class WindowController {
         void updateData();
         double getPerc();
         double getTemp();
-        bool getSwitch();
+        char getSwitch();
         void setPerc(double perc);
         bool switchReq();
         double getTunerPerc();

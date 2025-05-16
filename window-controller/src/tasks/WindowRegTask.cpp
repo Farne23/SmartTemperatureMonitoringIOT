@@ -22,7 +22,6 @@ void WindowRegTask::tick() {
     if (this->controller->getMode() == MANUAL) {
         double temp = this->controller->getTemp();
         double perc = this->controller->getPerc();
-
         // if perc is a defined value
         if (!isnan(perc)) {
             this->controller->setDashboardOn();
@@ -30,6 +29,7 @@ void WindowRegTask::tick() {
 
         if (!this->controller->getDashboardComm()) {
             perc = this->controller->getTunerPerc();
+            Serial.println("From tuner: " + String(perc));
         }
         this->controller->setPerc(perc);
         this->controller->displayMan(perc, temp);

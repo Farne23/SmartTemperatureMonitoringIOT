@@ -18,6 +18,7 @@ void SerialLine::getData()
         String content = msg->getContent();
         char text[sizeof(content)];
         strcpy(text, content.c_str());
+        Serial.println("message received: " + content);
         if (text[0] == 'M')
         {
             // take 'M' or 'A'
