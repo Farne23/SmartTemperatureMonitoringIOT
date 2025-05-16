@@ -1,7 +1,7 @@
 package utils;
 
 public enum SystemState {
-	NORMAL,HOT,TOO_HOT,ALARM;
+	NORMAL,HOT,TOO_HOT,ALARM,DISABLED;
 	
 	public static SystemState reset() {
 		return NORMAL;

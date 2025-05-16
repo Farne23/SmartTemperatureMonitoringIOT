@@ -13,25 +13,24 @@
 <body>
     <header>
         <h1>Smart temperature monitoring</h1>
-        <h2>System state: <span id="sysState">NORMAL</span></h2>
-        <h2>Control mode: <span id="controlMode">MANUAL</span></h2>
+        <h2>System state: <span id="sysState"> waiting for data... </span> </h2>
+        <h2>Control mode: <span id="controlMode"> waiting for data... </span> </h2>
     </header>
     <main>
         <div class="box left">
-            <!-- Contenuto di sinistra -->
             <h2>Temperature Trend over time (°C)</h2>
             <div class="stats-container">
                 <div class="stats-box">
                     <p>Average</p>
-                    <p><span id="avgTemp">NORMAL</span> °C</p>
+                    <p><span id="avgTemp"></span> °C</p>
                 </div>
                 <div class="stats-box">
                     <p>Min</p>
-                    <p><span id="minTemp">NORMAL</span> °C</p>
+                    <p><span id="minTemp"></span> °C</p>
                 </div>
                 <div class="stats-box">
                     <p>Max</p>
-                    <p><span id="maxTemp">NORMAL</span> °C</p>
+                    <p><span id="maxTemp"></span> °C</p>
                 </div>
             </div>
             <svg width="600" height="400"></svg>
@@ -40,8 +39,8 @@
             <h2>Control Panel</h2>
             <div class="controls-bar">
                 <div class="buttons-row">
-                    <input type="button" class="primary" value="CHANGE MODE" />
-                    <input type="button" class="danger" value="SOLVE PROBLEM" />
+                    <input id="switchModeBtn" type="button" class="primary" value="CHANGE MODE" />
+                    <input id="dangerBtn" type="button" class="danger hidden" value="SOLVE PROBLEM"/>
                 </div>
                 <div class="window-status-row">
                     <div class="window-status">
@@ -71,7 +70,7 @@
                 </div>
                 <div class="author">
                     <p><strong>Samuele Casadei</strong></p>
-                    <p>Email: <a href="mailto:samuele.casadei@studio.unibo.it">samuele.casadei@studio.unibo.it</a></p>
+                    <p>Email: <a href="mailto:samuele.casadei3@studio.unibo.it">samuele.casadei3@studio.unibo.it</a></p>
                     <p>GitHub: <a href="https://github.com/samuHouse" target="_blank">samuHouse</a></p>
                 </div>
             </div>

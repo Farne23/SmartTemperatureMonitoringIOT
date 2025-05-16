@@ -3,6 +3,21 @@ import communicationMQTT.TempMonitoringCommunicationClient;
 import communicationHTTP.HTTPServer;
 import mainUnit.ControlUnit;
 
+/**
+ * Main.java
+ * 
+ * Main entry point for the system.
+ * Initializes and deploys:
+ *  - Control Unit Core
+ *  - MQTT Communication Module
+ *  - HTTP Communication Module
+ *  -
+ * using the Vert.x framework.
+ * 
+ * Authors: Michele Farneti, Samuele Casadei
+ * Mails: michele.farneti@studio.unibo.it, samuele.casadei3@studio.unibo.it
+ */
+
 public class Main {
     public static void main(String[] args) {
     	

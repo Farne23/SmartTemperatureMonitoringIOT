@@ -97,12 +97,12 @@ assignment-03/
 
 ### Control Unit Subsystem
 - Runs on a PC
-- Can be implemented using **[..DA DEFINIRE..]** programming language
+- Implemented using Java and the Vertex framework
 - Uses MQTT (Temperature Monitoring), HTTP (Dashboard), Serial (Window Controller)
 
 ### Dashboard Subsystem
 - Runs on a PC
-- Can be implemented using **[..DA DEFINIRE..]** web technologies
+- Implemented using HTML, Javascript and CSS
 - Uses HTTP API for communication with Control Unit
 
 ## Installation & Usage
@@ -114,7 +114,7 @@ assignment-03/
 
 ## Authors
 - **Michele Farneti** (Email: michele.farneti@studio.unibo.it)
-- **Samuele Casadei** (Email: [..DA DEFINIRE..])
+- **Samuele Casadei** (Email: samuele.casadei3@studio.unibo.it)
 
 ## License
 This project is licensed under the **MIT License**.

@@ -21,7 +21,7 @@ public class HTTPServer extends AbstractVerticle {
 	private static final String DASH_UPDATE_TEMPERATURE_STATS = "dash.update.temperature.stats";
 	private static final String DASH_UPDATE_CONTROL_MODE = "update.control.mode.line";
 	private static final String DASH_UPDATE_SYSTEM_STATE = "dash.update.system.state";
-	private static final String DASH_UPDATE_OPENING_LEVEL = "update.opening.level";
+	private static final String DASH_UPDATE_OPENING_LEVEL = "update.opening.level.line";
 	private static String CHANGE_WINDOW_LEVEL_LINE_ADDRESS = "window.level.change";
 	private static String SWITCH_MODE_LINE_ADDRESS = "controlmode.switch";
 	private static String STOP_ALARM_LINE_ADDRESS = "dashboard.alarm.stop";
@@ -34,10 +34,10 @@ public class HTTPServer extends AbstractVerticle {
     private double maxTemperature;
     private double minTemperature;
     private double avgTemperature;
-    private ControlMode controlMode;
-    private SystemState systemState;
+    private ControlMode controlMode = ControlMode.AUTOMATIC;
+    private SystemState systemState = SystemState.NORMAL;
     private int openingLevel;
-    private HashSet<TemperatureSample> temperatures;
+    private HashSet<TemperatureSample> temperatures = new HashSet<TemperatureSample>();
 
     @Override
     public void start() {        
@@ -58,7 +58,7 @@ public class HTTPServer extends AbstractVerticle {
     	router.route().handler(BodyHandler.create());
 
     	//Handlers for get and post methods.
-    	router.post("/api/data").handler(this::handleDashaboardControls);
+    	router.post("/api/commands").handler(this::handleDashboardControls);
     	router.get("/api/data").handler(this::handleGetData);
   
         vertx
@@ -86,6 +86,7 @@ public class HTTPServer extends AbstractVerticle {
                 }
             }
             log("Updated stats and temperatures.");
+            message.reply("Success");
         });
 
         vertx.eventBus().consumer(DASH_UPDATE_CONTROL_MODE, message -> {
@@ -95,6 +96,7 @@ public class HTTPServer extends AbstractVerticle {
                 controlMode = ControlMode.valueOf(modeStr);
                 System.out.println("Updated control mode: " + controlMode);
             }
+            message.reply("Success");
         });
 
         vertx.eventBus().consumer(DASH_UPDATE_SYSTEM_STATE, message -> {
@@ -102,21 +104,23 @@ public class HTTPServer extends AbstractVerticle {
             String stateStr = body.getString("systemState");
             if (stateStr != null) {
                 systemState = SystemState.valueOf(stateStr);
-                System.out.println("Updated system state: " + systemState);
+                //System.out.println("Updated system state: " + systemState);
             }
+            message.reply("Success");
         });
 
         vertx.eventBus().consumer(DASH_UPDATE_OPENING_LEVEL, message -> {
             JsonObject body = (JsonObject) message.body();
             openingLevel = body.getInteger("openingLevel", 0);
-            System.out.println("Updated opening level: " + openingLevel);
+            //System.out.println("Updated opening level: " + openingLevel);
+            message.reply("Success");
         });
     }
     
     /* Handler of post messages received from the dashboard, acting as a client.
      * It checks the control sent trough the type parameter of the json message received
      * and alerts the control unit through messages sent via vertex message lines*/
-    private void handleDashaboardControls(RoutingContext routingContext) {
+    private void handleDashboardControls(RoutingContext routingContext) {
     	HttpServerResponse response = routingContext.response();
         JsonObject body = routingContext.getBodyAsJson();
 

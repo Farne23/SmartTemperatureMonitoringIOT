@@ -12,7 +12,10 @@ $box-color: white;
 $font : 'Roboto',
 sans-serif;
 
-/* Use the variables */
+.hidden{
+    visibility: hidden;
+}
+
 body {
     background-color: white;
     color: $textcolor;
@@ -184,6 +187,21 @@ body {
                             border-radius: 50%;
                             background: $fgcolor2;
                             cursor: pointer;
+                        }
+
+                        input[type="range"]:disabled {
+                            cursor: not-allowed;
+                            background: #ccc; /* Colore di sfondo per il range disabilitato */
+                        }
+                        
+                        input[type="range"]:disabled::-webkit-slider-thumb {
+                            background: #aaa; /* Colore diverso per il thumb quando disabilitato */
+                            cursor: not-allowed; /* Cursore non consentito anche sul thumb */
+                        }
+                        
+                        input[type="range"]:disabled::-moz-range-thumb {
+                            background: #aaa; /* Colore diverso per il thumb quando disabilitato */
+                            cursor: not-allowed; /* Cursore non consentito anche sul thumb */
                         }
                     }
                 }

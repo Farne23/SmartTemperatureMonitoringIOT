@@ -1,7 +1,5 @@
 package mainUnit;
 
-import java.util.Stack;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
@@ -10,23 +8,28 @@ import utils.ControlMode;
 import utils.SystemState;
 import utils.TemperatureSample;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 /*
- * Class implementing the main functions of the Window Controller Subsystem,
+ * Class implementing the main functions of the Temperature Monitoring System 
+ * control unit.
  */
 public class ControlUnit extends AbstractVerticle {
 	
-	private static final int MAX_HISTORY_SAMPLES = 100;
-	private static final double TEMPERATURE_THRESHOLD_NORMAL = 20;
-	private static final double TEMPERATURE_THRESHOLD_HOT = 22;
+	private static final int MAX_HISTORY_SAMPLES = 15;
+	private static final double TEMPERATURE_THRESHOLD_NORMAL = 23;
+	private static final double TEMPERATURE_THRESHOLD_HOT = 26;
 	private static final long TOO_HOT_MAX_SECONDS = 7;
-	private static final int PERIOD_NORMAL = 3000;
-	private static final int PERIOD_HOT = 2000;
-	private static final int PERIOD_TOO_HOT = 1000;
+	private static final int PERIOD_NORMAL = 2000;
+	private static final int PERIOD_HOT = 1000;
 	private static String FREQUENCY_LINE_ADDRESS = "frequency.line";
 	private static String TEMPERATURES_LINE_ADDRESS = "temperatures.line";
 	private static String OPENLEVEL_LINE_ADDRESS = "openlevel.line";
@@ -48,14 +51,14 @@ public class ControlUnit extends AbstractVerticle {
 	
 	private int openingLevel;
 	
-	private HashMap<LocalDateTime, Double> dailyMax = new HashMap<>();
-    private HashMap<LocalDateTime, Double> dailyMin = new HashMap<>();
-    private HashMap<LocalDateTime, Double> dailySum = new HashMap<>();
-    private HashMap<LocalDateTime, Integer> dailyCount = new HashMap<>();
-    private HashMap<LocalDateTime, Double> dailyAverage = new HashMap<>();
+	private HashMap<LocalDate, Double> dailyMax = new HashMap<>();
+    private HashMap<LocalDate, Double> dailyMin = new HashMap<>();
+    private HashMap<LocalDate, Double> dailySum = new HashMap<>();
+    private HashMap<LocalDate, Integer> dailyCount = new HashMap<>();
+    private HashMap<LocalDate, Double> dailyAverage = new HashMap<>();
 	
 	//Stack keeping track of the last N temperatures sampled
-	private Stack<TemperatureSample> temperatures;
+	private Queue<TemperatureSample> temperatures = new LinkedList<TemperatureSample>();
 	
 	public ControlUnit () {
 		this.openingLevel = 0;
@@ -67,16 +70,18 @@ public class ControlUnit extends AbstractVerticle {
 		 * Once they will be read, it will try to add them to the temperatures stack
 		 * */
 		 vertx.eventBus().consumer(TEMPERATURES_LINE_ADDRESS, message -> {
-	            System.out.println("Messaggio ricevuto: " + message.body());
+	            log("Received new temperature: " + message.body());
 				try {
 					JsonObject json = new JsonObject(message.body().toString());
-					LocalDateTime timestamp = LocalDateTime.parse(json.getString("timestamp"));
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+					LocalDateTime timestamp = LocalDateTime.parse(json.getString("time"),formatter);
 					double temperature = json.getDouble("temperature");
 					communicateTemperature(timestamp,temperature);	
-					JsonObject response = new JsonObject().put("status", "received");
-					message.reply(response);
+					//JsonObject response = new JsonObject().put("status", "received");
+					//message.reply(response);
+					message.reply("Success");
 				} catch (DecodeException e) {
-					System.out.println("JSON non riconoscibile");
+					log("JSON unrecongnizable");
 					e.printStackTrace();
 				}		
 	        });
@@ -89,22 +94,30 @@ public class ControlUnit extends AbstractVerticle {
 			    if(controlMode == ControlMode.MANUAL) {
 			    	changeWindowOpenLevel(level);
 			    }
+			    message.reply("Success");
 			});
 		 
 		 /*Consumer for messages received from the server or the controller system allerting that the user is trying to
 		  * switch control mode*/
 		 vertx.eventBus().consumer(SWITCH_MODE_LINE_ADDRESS, message -> {
-			 this.controlMode = this.controlMode.switchMode();
-			 this.sendControlMode();
+				 this.controlMode = this.controlMode.switchMode();
+				 if(this.controlMode == ControlMode.MANUAL) {
+					 this.systemState = SystemState.DISABLED;
+				 }else {
+					 this.systemState = SystemState.reset();
+				 }
+				 this.sendControlMode();
+				 message.reply("Success");
 			 });
 		 
 		 /*Consumer for messages received from the server allerting that the user has 
 		  * solved the problem and wants to go back to the normal system state.*/
 		 vertx.eventBus().consumer(DASH_STOP_ALARM_LINE_ADDRESS, message -> {
-			 if(this.systemState == SystemState.ALARM) {
-				 this.systemState = SystemState.NORMAL;
-				 this.sendSystemStateDash();
-			 }
+			 	if(this.systemState == SystemState.ALARM) {
+					 this.systemState = SystemState.NORMAL;
+					 this.sendSystemStateDash();
+				 }
+			 	message.reply("Success");
 			 });
 	}
 	
@@ -112,9 +125,9 @@ public class ControlUnit extends AbstractVerticle {
 		TemperatureSample sample = new TemperatureSample(date,temperature);
 		updateStats(sample);
 		if(historyFull()){
-			temperatures.pop();
+			temperatures.poll();
 		}
-		temperatures.push(sample);	
+		temperatures.add(sample);	
 	}
 	
 	private boolean historyFull() {
@@ -156,11 +169,16 @@ public class ControlUnit extends AbstractVerticle {
 	 */
 	private void updateStats(TemperatureSample sample) {
         // Update Max Temperature
-		dailyMax.put(sample.getDateTime(), Math.max(dailyMax.getOrDefault(sample.getDateTime(), Double.MIN_VALUE), sample.getTemperature()));
-        dailyMin.put(sample.getDateTime(), Math.min(dailyMin.getOrDefault(sample.getDateTime(), Double.MAX_VALUE), sample.getTemperature()));
-        dailySum.put(sample.getDateTime(), dailySum.getOrDefault(sample.getDateTime(), 0.0) + sample.getTemperature());
-        dailyCount.put(sample.getDateTime(), dailyCount.getOrDefault(sample.getDateTime(), 0) + 1);
-        dailyAverage.put(sample.getDateTime(), dailySum.get(sample.getDateTime()) / dailyCount.get(sample.getDateTime()));
+		LocalDate key = sample.getDateTime().toLocalDate();
+		double temp = sample.getTemperature();
+
+		dailyMax.put(key, Math.max(dailyMax.getOrDefault(key, -Double.MAX_VALUE), temp));
+		dailyMin.put(key, Math.min(dailyMin.getOrDefault(key, Double.MAX_VALUE), temp));
+		dailySum.put(key, dailySum.getOrDefault(key, 0.0) + temp);
+		dailyCount.put(key, dailyCount.getOrDefault(key, 0) + 1);
+		dailyAverage.put(key, new BigDecimal(dailySum.get(key) / dailyCount.get(key))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue());
         checkStatus(sample);
         this.sendStatsDash();
         this.sendTemperatureToController(sample);
@@ -171,27 +189,28 @@ public class ControlUnit extends AbstractVerticle {
 	 * is comumnicated
 	 */
 	private void checkStatus(TemperatureSample sample) {
-		if(systemState != SystemState.ALARM) {	
-			if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_NORMAL && systemState != SystemState.NORMAL) {
-				systemState = SystemState.NORMAL;
-				closeWindow();
-				changeFrequency(PERIOD_NORMAL);
-			} else if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_HOT && sample.getTemperature() > TEMPERATURE_THRESHOLD_NORMAL ) {
-				if(systemState != SystemState.HOT) {
-					systemState = SystemState.HOT;
-					changeFrequency(PERIOD_HOT);
-				}
-				changeWindowOpenLevel(getOpenLevel(sample.getTemperature()));
-			} else if (sample.getTemperature() > TEMPERATURE_THRESHOLD_HOT) {
-				openWindow();
-				if(systemState!=SystemState.TOO_HOT) {
-					systemState = SystemState.TOO_HOT;
-					tooHotStartTime = sample.getDateTime();
-					changeFrequency(PERIOD_TOO_HOT);
-				}else if (tooHotStartTime.plusSeconds(TOO_HOT_MAX_SECONDS).isBefore(sample.getDateTime())) {
-					systemState = SystemState.ALARM;
-				}
-			}	
+		if(controlMode == ControlMode.AUTOMATIC) {
+			if(systemState != SystemState.ALARM) {	
+				if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_NORMAL && systemState != SystemState.NORMAL) {
+					systemState = SystemState.NORMAL;
+					//closeWindow();
+					changeFrequency(PERIOD_NORMAL);
+				} else if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_HOT && sample.getTemperature() > TEMPERATURE_THRESHOLD_NORMAL ) {
+					if(systemState != SystemState.HOT) {
+						systemState = SystemState.HOT;
+						changeFrequency(PERIOD_HOT);
+					}
+				} else if (sample.getTemperature() > TEMPERATURE_THRESHOLD_HOT) {
+					//openWindow();
+					if(systemState!=SystemState.TOO_HOT) {
+						systemState = SystemState.TOO_HOT;
+						tooHotStartTime = sample.getDateTime();
+					}else if (tooHotStartTime.plusSeconds(TOO_HOT_MAX_SECONDS).isBefore(sample.getDateTime())) {
+						systemState = SystemState.ALARM;
+					}
+				}	
+			}
+			changeWindowOpenLevel(getOpenLevel(sample.getTemperature()));
 		}
 		this.sendSystemStateDash();
 	}
@@ -203,14 +222,14 @@ public class ControlUnit extends AbstractVerticle {
 	 * @param temperature
 	 */
 	private int getOpenLevel(double temperature) {
-		return (int)Math.round((temperature-TEMPERATURE_THRESHOLD_NORMAL)*100/(TEMPERATURE_THRESHOLD_HOT-TEMPERATURE_THRESHOLD_NORMAL));
+		return (int)Math.round((Math.max(TEMPERATURE_THRESHOLD_NORMAL, Math.min(temperature, TEMPERATURE_THRESHOLD_HOT))-TEMPERATURE_THRESHOLD_NORMAL)*100/(TEMPERATURE_THRESHOLD_HOT-TEMPERATURE_THRESHOLD_NORMAL));
 	}
 	
 	// Funzione per ottenere il valore per il giorno corrente da una HashMap
-	private <T> T getTodayValue(HashMap<LocalDateTime, T> map) {
+	private <T> T getTodayValue(HashMap<LocalDate, T> map) {
 	    LocalDate today = LocalDate.now();
-	    for (Map.Entry<LocalDateTime, T> entry : map.entrySet()) {
-	        if (entry.getKey().toLocalDate().equals(today)) {
+	    for (Map.Entry<LocalDate, T> entry : map.entrySet()) {
+	        if (entry.getKey().equals(today)) {
 	            return entry.getValue();
 	        }
 	    }
@@ -258,6 +277,10 @@ public class ControlUnit extends AbstractVerticle {
 	private void sendTemperatureToController(TemperatureSample sample) {
 		vertx.eventBus().publish(CONTROLLER_SIGNAL_TEMPERATURE_LINE_ADDRESS, new JsonObject()
 		        .put("temperature", sample.getTemperature()));
+	}
+	
+	private void log(String message) {
+		System.out.println("[CONTROL UNIT CORE]: " + message);
 	}
 	
 }

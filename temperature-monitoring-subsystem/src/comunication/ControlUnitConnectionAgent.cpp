@@ -43,7 +43,6 @@ void ControlUnitConnectionAgent::sendTemperature(double temperature)
                  temperature);
 
         mqttClient->publishMessage(temperature_topic, payload);
-        Serial.println(payload);
     }
     else
     {

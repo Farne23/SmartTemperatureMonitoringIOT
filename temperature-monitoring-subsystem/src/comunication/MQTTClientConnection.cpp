@@ -14,13 +14,14 @@ void MQTTClientConnection::begin()
 {
     // Connection to the wifi and setting up of the server.
     connectWiFi();
-    espClient.setInsecure(); // Disabilita la verifica del certificato (solo per test!)
+    //Disabling certificate checking
+    espClient.setInsecure(); 
     client.setServer(mqtt_server, mqtt_port);
     reconnectMQTT();
     // Saving the instance of this object, needed later on to make the callback work.
     MQTTClientConnection::instance = this;
 
-    // Begins the first countdown for the connection periodc check
+    // Begins the first countdown for the connection periodic check
     lastMsgTime = millis();
 }
 
@@ -73,7 +74,7 @@ void MQTTClientConnection::publishMessage(const char *topic, const char *message
 
 void MQTTClientConnection::callback(const char *topic, byte *payload, unsigned int length)
 {
-    Serial.println(String("Message arrived on [") + topic + "] len: " + length);
+    log(String("Message arrived on [") + topic + "] len: " + length);
     if (strcmp(topic, this->connection_topic) == 0)
     {
         communicationOk = true;
