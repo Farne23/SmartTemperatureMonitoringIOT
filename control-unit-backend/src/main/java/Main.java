@@ -1,5 +1,6 @@
 import io.vertx.core.Vertx;
 import communicationMQTT.TempMonitoringCommunicationClient;
+import communicationSerial.WindowControlCommunicationClient;
 import communicationHTTP.HTTPServer;
 import mainUnit.ControlUnit;
 
@@ -37,6 +38,12 @@ public class Main {
 		log("## Starting HTTP comunication module ...");
 		HTTPServer HTTPModule = new HTTPServer();
 		vertx.deployVerticle(HTTPModule);
+		
+		//HTTP communication module initialization
+		log("## Starting Serial communication module ...");
+		WindowControlCommunicationClient serialClient = new WindowControlCommunicationClient();
+		vertx.deployVerticle(serialClient);
+		
     }
     
     private static void log(String message) {
