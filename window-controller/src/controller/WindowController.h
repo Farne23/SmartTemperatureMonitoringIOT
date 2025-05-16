@@ -25,10 +25,11 @@ class WindowController {
     public:
         WindowController();
         ControlMode getMode();
+        void switchToMan();
+        void switchToAuto();
         void switchMode();
         void updateData();
-        double getAutoPerc();
-        double getManPerc();
+        double getPerc();
         double getTemp();
         bool getSwitch();
         void setPerc(double perc);

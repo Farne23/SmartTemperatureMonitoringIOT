@@ -11,7 +11,7 @@ LCDisplay::LCDisplay()
     : lcd(ADDR, COLS, ROWS) // lcd member in the init list
 {
     this->lcd.init();
-    this->lcd.setBacklight(HIGH);
+    this->lcd.backlight();
 }
 
 void LCDisplay::printMsg(string line1, string line2) {

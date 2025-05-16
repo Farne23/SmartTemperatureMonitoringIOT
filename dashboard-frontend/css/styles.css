@@ -1,0 +1,225 @@
+/* Use the variables */
+body {
+  background-color: white;
+  color: black;
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+}
+body header h1 {
+  background: linear-gradient(to bottom, #04d6bd, #00c6e9);
+  font-weight: bold;
+  color: #e6f4f5;
+  padding: 10px;
+}
+body header h2 {
+  font-style: italic;
+  padding-left: 10px;
+}
+body header h2 span {
+  color: red;
+}
+body main {
+  display: flex;
+  width: 100%;
+}
+body main .box {
+  background-color: white;
+  flex: 1;
+  padding: 20px;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  border-top: 1px solid #e6f4f5;
+}
+body main .left {
+  display: flex;
+  border-right: 1px solid #e6f4f5;
+}
+body main .left h2 {
+  font-size: 30px;
+  font-weight: bold;
+  text-decoration: underline;
+}
+body main .left .stats-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+body main .left .stats-container .stats-box {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(to bottom, #04d6bd, #00c6e9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin: 20px;
+  border: 1px solid #e6f4f5;
+  color: #e6f4f5;
+}
+body main .left .stats-container .stats-box p {
+  margin: 5px;
+}
+body main .left .stats-container .stats-box p:first-of-type {
+  font-size: 24px;
+  font-weight: bold;
+}
+body main .left .stats-container .stats-box p:nth-of-type(2) {
+  font-size: 21px;
+  font-style: italic;
+}
+body main .left svg {
+  margin-top: 2px;
+  padding: 15px;
+}
+body main .right {
+  display: flex;
+  border-left: 1px solid #e6f4f5;
+}
+body main .right h2 {
+  font-size: 30px;
+  font-weight: bold;
+  text-decoration: underline;
+}
+body main .right .controls-bar {
+  display: flex;
+  flex-direction: column;
+}
+body main .right .controls-bar .window-status-row {
+  display: flex;
+  flex-direction: row;
+}
+body main .right .controls-bar .window-status-row .window-status,
+body main .right .controls-bar .window-status-row .window-control {
+  padding: 20px;
+  text-align: center;
+  width: 200px;
+}
+body main .right .controls-bar .window-status-row .window-status h3,
+body main .right .controls-bar .window-status-row .window-control h3 {
+  font-size: 24px;
+}
+body main .right .controls-bar .window-status-row .window-status p,
+body main .right .controls-bar .window-status-row .window-control p {
+  font-size: 21px;
+  font-style: italic;
+}
+body main .right .controls-bar .window-status-row .bar-container {
+  width: 150px;
+  height: 250px;
+  background: linear-gradient(180deg, #00c6e9, #04d6bd);
+  border-radius: 10px;
+  position: relative;
+  margin: 0 auto;
+  border: 1px solid black;
+}
+body main .right .controls-bar .window-status-row .bar-container .bar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 0%;
+  background: azure;
+  border-radius: 10px 10px 0 0;
+  transition: height 0.4s ease;
+}
+body main .right .controls-bar .window-status-row .window-control h3 {
+  font-size: 24px;
+}
+body main .right .controls-bar .window-status-row .window-control input[type=range] {
+  -webkit-appearance: none;
+  width: 200px;
+  height: 15px;
+  background: #ddd;
+  border-radius: 5px;
+}
+body main .right .controls-bar .window-status-row .window-control input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00c6e9;
+  cursor: pointer;
+}
+body main .right .controls-bar .window-status-row .window-control input[type=range]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00c6e9;
+  cursor: pointer;
+}
+body main .right .controls-bar .buttons-row {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+}
+body main .right .controls-bar .buttons-row input[type=button].danger, body main .right .controls-bar .buttons-row input[type=button].primary, body main .right .controls-bar .buttons-row input[type=button] {
+  border: 1px solid #04d6bd;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  margin: 5px;
+  font-size: 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  height: 60px;
+}
+body main .right .controls-bar .buttons-row input[type=button].primary {
+  background: linear-gradient(to bottom, #04d6bd, #00c6e9);
+}
+body main .right .controls-bar .buttons-row input[type=button].primary:hover {
+  background: rgb(3.0642201835, 163.9357798165, 144.7844036697);
+}
+body main .right .controls-bar .buttons-row input[type=button].primary:active {
+  background: rgb(2.128440367, 113.871559633, 100.5688073394);
+}
+body main .right .controls-bar .buttons-row input[type=button].danger {
+  background: linear-gradient(to bottom, #F0DFA9, #b04826);
+}
+body main .right .controls-bar .buttons-row input[type=button].danger:hover {
+  background: rgb(232.4257425743, 206.8415841584, 125.5742574257);
+}
+body main .right .controls-bar .buttons-row input[type=button].danger:active {
+  background: rgb(92.1121495327, 37.6822429907, 19.8878504673);
+}
+body footer {
+  background-color: #00c6e9;
+  color: #e6f4f5;
+  padding: 20px 10px;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 40px;
+}
+body footer a {
+  color: #e6f4f5;
+  text-decoration: none;
+}
+body footer a:hover {
+  text-decoration: underline;
+}
+body footer .footer-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+body footer .footer-content p {
+  margin: 5px 0;
+}
+body footer .footer-content .authors {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-top: 15px;
+}
+body footer .footer-content .authors .author {
+  text-align: left;
+}
+body footer .footer-content .authors .author p:first-of-type {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/*# sourceMappingURL=styles.css.map */

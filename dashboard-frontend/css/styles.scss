@@ -1,0 +1,289 @@
+@use 'sass:color';
+
+$bgcolor: #e6f4f5;
+$textcolor: black;
+$fgcolor1: #04d6bd;
+$fgcolor2: #00c6e9;
+$highlightcolor1: #F0DFA9;
+$highlightcolor2: #b04826;
+$skycolor: azure;
+$fontsize: 18px;
+$box-color: white;
+$font : 'Roboto',
+sans-serif;
+
+/* Use the variables */
+body {
+    background-color: white;
+    color: $textcolor;
+    font-family: $font;
+    font-size: $fontsize;
+
+    header {
+        h1 {
+            background: linear-gradient(to bottom, $fgcolor1, $fgcolor2);
+            font-weight: bold;
+            color: $bgcolor;
+            padding: 10px;
+        }
+
+        h2 {
+            font-style: italic;
+            padding-left: 10px;
+
+            span {
+                color: red;
+            }
+        }
+    }
+
+    main {
+        display: flex;
+        width: 100%;
+
+        .box {
+            background-color: $box-color;
+            flex: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-direction: column;
+            align-items: center;
+            border-top: 1px solid $bgcolor ;
+        }
+
+        .left {
+            display: flex;
+            border-right: 1px solid $bgcolor ;
+
+            h2 {
+                font-size: 30px;
+                font-weight: bold;
+                text-decoration: underline;
+            }
+
+            .stats-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-evenly;
+
+                .stats-box {
+                    width: 100px;
+                    height: 100px;
+                    background: linear-gradient(to bottom, $fgcolor1, $fgcolor2);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 10px;
+                    margin: 20px;
+                    border: 1px solid $bgcolor;
+                    color: $bgcolor;
+
+                    p {
+                        margin: 5px;
+                    }
+
+                    p:first-of-type {
+                        font-size: 24px;
+                        font-weight: bold;
+                    }
+
+                    p:nth-of-type(2) {
+                        font-size: 21px;
+                        font-style: italic;
+                    }
+                }
+            }
+
+            svg {
+                margin-top: 2px;
+                padding: 15px;
+            }
+        }
+
+        .right {
+            display: flex;
+            border-left: 1px solid $bgcolor;
+
+            h2 {
+                font-size: 30px;
+                font-weight: bold;
+                text-decoration: underline;
+            }
+
+            .controls-bar {
+                display: flex;
+                flex-direction: column;
+
+                .window-status-row {
+                    display: flex;
+                    flex-direction: row;
+
+                    .window-status,
+                    .window-control {
+                        padding: 20px;
+                        text-align: center;
+                        width: 200px;
+
+                        h3 {
+                            font-size: 24px;
+                        }
+
+                        p{
+                            font-size: 21px;
+                            font-style: italic;
+                        }
+                    }
+
+                    .bar-container {
+                        width: 150px;
+                        height: 250px;
+                        background: linear-gradient(180deg, $fgcolor2, $fgcolor1);
+                        border-radius: 10px;
+                        position: relative;
+                        margin: 0 auto;
+                        border: 1px solid black;
+
+                        .bar {
+                            position: absolute;
+                            bottom: 0;
+                            width: 100%;
+                            height: 0%;
+                            background: $skycolor;
+                            border-radius: 10px 10px 0 0;
+                            transition: height 0.4s ease;
+                        }
+                    }
+
+                    .window-control {
+                        h3 {
+                            font-size: 24px;
+                        }
+
+                        input[type="range"] {
+                            -webkit-appearance: none;
+                            width: 200px;
+                            height: 15px;
+                            background: #ddd;
+                            border-radius: 5px;
+                        }
+
+                        input[type="range"]::-webkit-slider-thumb {
+                            -webkit-appearance: none;
+                            appearance: none;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            background: $fgcolor2;
+                            cursor: pointer;
+                        }
+
+                        input[type="range"]::-moz-range-thumb {
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            background: $fgcolor2;
+                            cursor: pointer;
+                        }
+                    }
+                }
+
+                .buttons-row {
+                    display: flex;
+                    width: 100%;
+                    flex-direction: row;
+                    justify-content: space-between;
+
+                    %button-base {
+                        border: 1px solid $fgcolor1;
+                        color: white;
+                        border: none;
+                        padding: 15px 20px;
+                        margin: 5px;
+                        font-size: 24px;
+                        border-radius: 8px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease;
+                        height: 60px
+                    }
+
+                    input[type="button"] {
+                        @extend %button-base;
+                    }
+
+                    input[type="button"].primary {
+                        @extend %button-base;
+                        background: linear-gradient(to bottom, $fgcolor1, $fgcolor2);
+
+                        &:hover {
+                            background: color.adjust($fgcolor1, $lightness: -10%);
+                        }
+
+                        &:active {
+                            background: color.adjust($fgcolor1, $lightness: -20%);
+                        }
+
+                    }
+
+                    input[type="button"].danger {
+                        @extend %button-base;
+                        background: linear-gradient(to bottom, $highlightcolor1, $highlightcolor2);
+
+                        &:hover {
+                            background: color.adjust($highlightcolor1, $lightness: -10%);
+                        }
+
+                        &:active {
+                            background: color.adjust($highlightcolor2, $lightness: -20%);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    footer {
+        background-color: $fgcolor2;
+        color: $bgcolor;
+        padding: 20px 10px;
+        font-size: 16px;
+        text-align: center;
+        margin-top: 40px;
+
+        a {
+            color: $bgcolor;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+
+            p {
+                margin: 5px 0;
+            }
+
+            .authors {
+                display: flex;
+                justify-content: center;
+                gap: 50px;
+                margin-top: 15px;
+
+                .author {
+                    text-align: left;
+
+                    p:first-of-type {
+                        font-weight: bold;
+                        margin-bottom: 5px;
+                    }
+                }
+            }
+        }
+    }
+
+}

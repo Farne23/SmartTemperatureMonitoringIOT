@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Smart Temperature Monitoring Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script><!-- D3.JS script -->
+</head>
+
+<body>
+    <header>
+        <h1>Smart temperature monitoring</h1>
+        <h2>System state: <span id="sysState">NORMAL</span></h2>
+        <h2>Control mode: <span id="controlMode">MANUAL</span></h2>
+    </header>
+    <main>
+        <div class="box left">
+            <!-- Contenuto di sinistra -->
+            <h2>Temperature Trend over time (°C)</h2>
+            <div class="stats-container">
+                <div class="stats-box">
+                    <p>Average</p>
+                    <p><span id="avgTemp">NORMAL</span> °C</p>
+                </div>
+                <div class="stats-box">
+                    <p>Min</p>
+                    <p><span id="minTemp">NORMAL</span> °C</p>
+                </div>
+                <div class="stats-box">
+                    <p>Max</p>
+                    <p><span id="maxTemp">NORMAL</span> °C</p>
+                </div>
+            </div>
+            <svg width="600" height="400"></svg>
+        </div>
+        <div class="box right">
+            <h2>Control Panel</h2>
+            <div class="controls-bar">
+                <div class="buttons-row">
+                    <input type="button" class="primary" value="CHANGE MODE" />
+                    <input type="button" class="danger" value="SOLVE PROBLEM" />
+                </div>
+                <div class="window-status-row">
+                    <div class="window-status">
+                        <h3>Window Opening</h3>
+                        <div class="bar-container">
+                            <div class="bar" id="currentLevel"></div>
+                        </div>
+                        <p id="openingLevel">35%</p>
+                    </div>
+                    <div class="window-control">
+                        <h3>Set level</h3>
+                        <input type="range" min="0" max="100" value="0" id="setLevelSlider">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            <p><strong>Smart Temperature Monitoring System</strong></p>
+            <p>Progetto per il corso di Sistemi Embedded e Internet of Things - 2024 - UNIBO</p>
+            <div class="authors">
+                <div class="author">
+                    <p><strong>Michele Farneti</strong></p>
+                    <p>Email: <a href="mailto:michele.farneti@studio.unibo.it">michele.farneti@studio.unibo.it</a></p>
+                    <p>GitHub: <a href="https://github.com/Farnet23" target="_blank">Farne23</a></p>
+                </div>
+                <div class="author">
+                    <p><strong>Samuele Casadei</strong></p>
+                    <p>Email: <a href="mailto:samuele.casadei@studio.unibo.it">samuele.casadei@studio.unibo.it</a></p>
+                    <p>GitHub: <a href="https://github.com/samuHouse" target="_blank">samuHouse</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="js/main.js" defer></script>
+</body>
+
+</html>
