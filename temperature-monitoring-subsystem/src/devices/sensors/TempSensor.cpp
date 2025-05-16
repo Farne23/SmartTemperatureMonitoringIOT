@@ -12,7 +12,6 @@ TempSensor::TempSensor(int pin)
 
 double TempSensor::sense()
 {
-    Serial.println(this->pin);
     // value read by PWM signal
     int temp_adc_val;
     double temp_val;

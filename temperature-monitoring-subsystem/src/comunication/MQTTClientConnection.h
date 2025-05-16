@@ -50,7 +50,7 @@ private:
     const char *periods_topic;
 
     long lastMsgTime;
-    int period = 1000;
+    int period = 3000;
     bool periodAvailable = false;
     bool communicationOk = false;
 

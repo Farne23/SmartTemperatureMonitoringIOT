@@ -134,6 +134,7 @@ public class TempMonitoringCommunicationClient extends AbstractVerticle{
 	 * @param period New sampling period to be sent.
 	 */
 	private void setFrequency(int period) {
+		log("Pubblico messaggio");
 		publishMessage(periodsTopic, Integer.toString(period),MqttQoS.EXACTLY_ONCE);
 	}
 	

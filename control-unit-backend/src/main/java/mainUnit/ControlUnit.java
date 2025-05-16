@@ -28,7 +28,7 @@ public class ControlUnit extends AbstractVerticle {
 	private static final double TEMPERATURE_THRESHOLD_NORMAL = 23;
 	private static final double TEMPERATURE_THRESHOLD_HOT = 26;
 	private static final long TOO_HOT_MAX_SECONDS = 7;
-	private static final int PERIOD_NORMAL = 2000;
+	private static final int PERIOD_NORMAL = 3000;
 	private static final int PERIOD_HOT = 1000;
 	private static String FREQUENCY_LINE_ADDRESS = "frequency.line";
 	private static String TEMPERATURES_LINE_ADDRESS = "temperatures.line";
@@ -103,6 +103,7 @@ public class ControlUnit extends AbstractVerticle {
 				 this.controlMode = this.controlMode.switchMode();
 				 if(this.controlMode == ControlMode.MANUAL) {
 					 this.systemState = SystemState.DISABLED;
+					 changeFrequency(PERIOD_NORMAL);
 				 }else {
 					 this.systemState = SystemState.reset();
 				 }
@@ -193,10 +194,9 @@ public class ControlUnit extends AbstractVerticle {
 			if(systemState != SystemState.ALARM) {	
 				if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_NORMAL && systemState != SystemState.NORMAL) {
 					systemState = SystemState.NORMAL;
-					//closeWindow();
 					changeFrequency(PERIOD_NORMAL);
 				} else if(sample.getTemperature() <= TEMPERATURE_THRESHOLD_HOT && sample.getTemperature() > TEMPERATURE_THRESHOLD_NORMAL ) {
-					if(systemState != SystemState.HOT) {
+					if(systemState != SystemState.HOT ) {
 						systemState = SystemState.HOT;
 						changeFrequency(PERIOD_HOT);
 					}

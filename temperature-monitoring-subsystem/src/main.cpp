@@ -44,7 +44,8 @@ Sensor *sonar;
 LightSignals *lightSignals;
 
 double temperature;
-int period = 1000; //Default sampling period is 1 seconds
+int period = 3000; //Default sampling period is 3 seconds
+int checkConnectionPeriod = 2000; //Connection status is checked every 2 seconds.
 
 SemaphoreHandle_t mqttMutex;
 TaskHandle_t TaskTemperature;
@@ -83,7 +84,7 @@ void TaskTemperaturecode(void *parameter)
             }
             xSemaphoreGive(mqttMutex);
         }
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(period / portTICK_PERIOD_MS);  //ESP32 uns on 100Hz, a tick every 10 ms.
     }
 }
 
@@ -112,7 +113,7 @@ void TaskCheckConnectionCode(void *parameter)
             }
             xSemaphoreGive(mqttMutex);
         }
-        vTaskDelay((period / 2) / portTICK_PERIOD_MS);
+        vTaskDelay(checkConnectionPeriod / portTICK_PERIOD_MS);
     }
 }
 

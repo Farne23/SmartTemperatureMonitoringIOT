@@ -74,7 +74,7 @@ void MQTTClientConnection::publishMessage(const char *topic, const char *message
 
 void MQTTClientConnection::callback(const char *topic, byte *payload, unsigned int length)
 {
-    log(String("Message arrived on [") + topic + "] len: " + length);
+    //log(String("Message arrived on [") + topic + "] len: " + length);
     if (strcmp(topic, this->connection_topic) == 0)
     {
         communicationOk = true;

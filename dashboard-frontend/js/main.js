@@ -2,7 +2,7 @@
 const POLL_INTERVAL_MS = 100;
 
 //Address used for HTTP comunication with the main control unit.
-const CONTROL_UNIT_ADDRESS = "https://ca07-109-54-180-105.ngrok-free.app";
+const CONTROL_UNIT_ADDRESS = "http://localhost:8080";
 
 //Array for temperatures samples
 let samples = [];
