@@ -3,7 +3,7 @@
 
 #define ADDR 0x27
 #define COLS 16
-#define ROWS 2
+#define ROWS 4
 #define ST 0
 #define ND 1
 
@@ -39,6 +39,5 @@ void LCDisplay::printMsg(string line1, string line2) {
         this->lcd.setCursor(ST, ND);
         this->lcd.print(BLANK);
         */
-
-    }  
+    }
 }

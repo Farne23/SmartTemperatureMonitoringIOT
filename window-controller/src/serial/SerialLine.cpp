@@ -1,39 +1,65 @@
 #include "SerialLine.h"
+#include "settings/DomainDefaults.h"
 
 SerialLine::SerialLine()
 {
     MsgService.init();
 }
 
-void SerialLine::sendData(double openPerc)
+void SerialLine::sendData(String msg)
 {
-    MsgService.sendMsg(String(openPerc));
+    MsgService.sendMsg(msg);
 }
 
 void SerialLine::getData()
 {
-    if (MsgService.isMsgAvailable())
+    // if no message is available, then every value is default.
+    changeMode = DEF_MODE;
+    perc = DEF_PERC;
+    temp = DEF_TEMP;
+
+    while (MsgService.isMsgAvailable())
     {
         Msg *msg = MsgService.receiveMsg();
         String content = msg->getContent();
-        char text[sizeof(content)];
-        strcpy(text, content.c_str());
-        Serial.println("message received: " + content);
-        if (text[0] == 'M')
+        delete msg;
+
+        if (content.length() > 0)
         {
-            // take 'M' or 'A'
-            changeMode = content.c_str()[1];
-        }
-        if (text[0] == 'T')
-        {
-            char* endptr = nullptr;
-            this->temp = strtod(content.substring(1).c_str(), &endptr);
-        }
-        if (text[0] == 'P')
-        {
-            char* endptr = nullptr;
-            // convert from [100, 0] to [1.0, 0.0]
-            this->perc = (double)(strtol(content.substring(1).c_str(), &endptr, 10) / 100);
+            char firstChar = content.charAt(0);
+            switch (firstChar) {
+                case 'M':
+                    changeMode = firstChar == 'M' ? changeMode = content.charAt(1) : DEF_MODE;
+                    break;
+                case 'T':
+                    char* endptr = nullptr;
+                    // replacing "," with ".".
+                    content.replace(",", ".");
+                    this->temp = strtod(content.substring(1).c_str(), &endptr);
+                    break;
+                case 'P':
+                    char* endptr = nullptr;
+                    long val = strtol(content.substring(1).c_str(), &endptr, 10);
+                    this->perc = (double)val / 100.0;
+                    break;
+                default:
+            };
+            // changeMode = firstChar == 'M' ? changeMode = content.charAt(1) : DEF_MODE;
+
+            // if (firstChar == 'T')
+            // {
+            //     char* endptr = nullptr;
+            //     // replacing "," with ".".
+            //     content.replace(",", ".");
+            //     this->temp = strtod(content.substring(1).c_str(), &endptr);
+            // }
+
+            // if (firstChar == 'P')
+            // {   
+            //     char* endptr = nullptr;
+            //     long val = strtol(content.substring(1).c_str(), &endptr, 10);
+            //     this->perc = (double)val / 100.0;
+            // }
         }
     }
 }

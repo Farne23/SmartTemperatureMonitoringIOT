@@ -10,6 +10,6 @@ void ControlPanelTask::tick() {
     if (this->controller->switchReq()) {
         this->controller->switchMode();
         // Write mode switch on serial line
-        MsgService.sendMsg("S");
+        this->controller->sendData("S");
     } 
 }

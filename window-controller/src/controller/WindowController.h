@@ -20,7 +20,6 @@ class WindowController {
         Display* display;
         SwitchButton* button;
         SerialLine* line;
-        bool dashboardComm;
         
     public:
         WindowController();
@@ -28,15 +27,14 @@ class WindowController {
         void switchToMan();
         void switchToAuto();
         void switchMode();
-        void updateData();
+        void fetch();
         double getPerc();
         double getTemp();
         char getSwitch();
         void setPerc(double perc);
         bool switchReq();
         double getTunerPerc();
-        bool getDashboardComm();
-        void setDashboardOn();
+        void sendData(String msg);
         void displayMan(double perc, double temp);
         void displayAuto (double perc);
 };

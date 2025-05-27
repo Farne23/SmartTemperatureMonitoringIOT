@@ -16,20 +16,18 @@ WindowController *controller;
 
 void setup()
 {
-  Serial.begin(9600);
-
   // Container intitialization
   controller = new WindowController();
   // Scheduler initialization
-  scheduler.init(100);
+  scheduler.init(25);
 
   // Window regulation task initialization
   Task *regTask = new WindowRegTask(controller);
-  regTask->init(200);
+  regTask->init(25);
 
   // Control panel task initialization
   Task *controlTask = new ControlPanelTask(controller);
-  controlTask->init(100);
+  controlTask->init(50);
 
   // Adding tasks to the scheduler
   scheduler.addTask(regTask);

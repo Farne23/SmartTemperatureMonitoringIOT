@@ -9,7 +9,6 @@ WindowController::WindowController() {
     this->tuner = new TunerImpl(POT_PIN);
     this->window = new Window(SERVO_MOTOR_PIN);
     this->line = new SerialLine();
-    this->dashboardComm = false;
 }
 
 ControlMode WindowController::getMode() {
@@ -28,7 +27,7 @@ void WindowController::switchMode() {
     this->mode = this->mode == AUTO ? MANUAL : AUTO;
 }
 
-void WindowController::updateData() {
+void WindowController::fetch() {
     this->line->getData();
 }
 
@@ -59,18 +58,14 @@ double WindowController::getTunerPerc() {
     return value;
 }
 
-bool WindowController::getDashboardComm() {
-    return this->dashboardComm;
-}
-
-void WindowController::setDashboardOn() {
-    this->dashboardComm = true;
-}
-
 void WindowController::displayMan(double perc, double temp) {
     this->display->displayMan(perc, temp);
 }
 
 void WindowController::displayAuto (double perc) {
     this->display->displayAuto(perc);
+}
+
+void WindowController::sendData(String msg) {
+    this->line->sendData(msg);
 }

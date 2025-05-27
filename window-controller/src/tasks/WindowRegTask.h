@@ -7,7 +7,7 @@
 class WindowRegTask : public Task {
     private:
         WindowController *controller;
-    
+        bool dashComm;
     public:
         WindowRegTask(WindowController *controller);
         void tick();

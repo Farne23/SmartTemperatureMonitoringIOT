@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "MsgService.h"
 
 String content;
@@ -14,9 +13,11 @@ Msg *MsgServiceClass::receiveMsg()
 {
   if (msgAvailable)
   {
-    Msg *msg = currentMsg;
-    msgAvailable = false;
-    currentMsg = NULL;
+    //Msg *msg = currentMsg;
+    //msgAvailable = false;
+    //currentMsg = NULL;
+    Msg *msg = queue->dequeue();
+    msgAvailable = queue->size() > 0;
     content = "";
     return msg;
   }
@@ -31,7 +32,8 @@ void MsgServiceClass::init()
   Serial.begin(9600);
   content.reserve(10);
   content = "";
-  currentMsg = NULL;
+  //currentMsg = NULL;
+  queue = new MsgQueue();
   msgAvailable = false;
 }
 
@@ -48,8 +50,10 @@ void serialEvent()
     char ch = (char)Serial.read();
     if (ch == '\n')
     {
-      MsgService.currentMsg = new Msg(content);
+      //MsgService.currentMsg = new Msg(content);
+      MsgService.queue->enqueue(new Msg(content));
       MsgService.msgAvailable = true;
+      //content = "";
     }
     else
     {
@@ -59,26 +63,26 @@ void serialEvent()
 }
 
 /* controlla e c'è un messaggio sulla linea seriale */
-bool MsgServiceClass::isMsgAvailable(Pattern &pattern)
-{
-  return (msgAvailable && pattern.match(*currentMsg));
-}
+// bool MsgServiceClass::isMsgAvailable(Pattern &pattern)
+// {
+//   return (msgAvailable && pattern.match(*currentMsg));
+// }
 
 /* fetcha il messaggio dalla linea seriale
 N.B. è mia responsabilità cancellare il messaggio che ricevo
 */
-Msg *MsgServiceClass::receiveMsg(Pattern &pattern)
-{
-  if (msgAvailable && pattern.match(*currentMsg))
-  {
-    Msg *msg = currentMsg;
-    msgAvailable = false;
-    currentMsg = NULL;
-    content = "";
-    return msg;
-  }
-  else
-  {
-    return NULL;
-  }
-}
+// Msg *MsgServiceClass::receiveMsg(Pattern &pattern)
+// {
+//   if (msgAvailable && pattern.match(*currentMsg))
+//   {
+//     Msg *msg = currentMsg;
+//     msgAvailable = false;
+//     currentMsg = NULL;
+//     content = "";
+//     return msg;
+//   }
+//   else
+//   {
+//     return NULL;
+//   }
+// }

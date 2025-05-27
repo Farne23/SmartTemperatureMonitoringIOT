@@ -6,7 +6,7 @@
 class SerialLine {
     public:
         SerialLine();
-        void sendData(double openPerc);
+        void sendData(String msg);
         void getData();
         char getChangeStatus();
         double getTemp();

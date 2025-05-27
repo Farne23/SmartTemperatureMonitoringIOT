@@ -16,7 +16,7 @@ public class WindowControlCommunicationClient extends AbstractVerticle{
     private static final String WINDOW_LEVEL_CHANGE = "window.level.change";
     private static final String CONTROL_MODE_SWITCH = "control.mode.switch";
     // Port  and baudrate for serial communication.
-    private static final String PORT = "COM5";
+    private static final String PORT = "COM3";
     private static final int BAUD_RATE = 9600;
     private static final long DELAY = 150;
     private static final String SWITCH_MSG = "S";
@@ -40,7 +40,7 @@ public class WindowControlCommunicationClient extends AbstractVerticle{
         vertx.eventBus().consumer(UPDATE_OPENING_LEVEL, message -> {
             log("Messaggio ricevuto: " + message.body() + "%");
             JsonObject body = (JsonObject) message.body();
-            serial.sendMsg("P" + body.getInteger("openingLevel"));
+            serial.sendMsg("P" + Integer.toString(body.getInteger("openingLevel")));
             log("Sending: P" + body.getInteger("openingLevel"));
         });
 
@@ -69,10 +69,9 @@ public class WindowControlCommunicationClient extends AbstractVerticle{
                 } catch (Exception e) {}
             }
             // if msg is not empty
-            if (!msg.equals("")) {
-                if (msg.contains("pong")) {
-                    log("[Sent to serial]: " + msg.replace("pong", ""));
-                }
+            if (!msg.isEmpty()) {
+                // just for debug purpose
+                System.out.println("[Arduino]:" + msg);
                 parseMessage(msg);
             }
         });
