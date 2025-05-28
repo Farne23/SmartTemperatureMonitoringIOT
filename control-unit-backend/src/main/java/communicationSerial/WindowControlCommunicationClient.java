@@ -70,8 +70,6 @@ public class WindowControlCommunicationClient extends AbstractVerticle{
             }
             // if msg is not empty
             if (!msg.isEmpty()) {
-                // just for debug purpose
-                System.out.println("[Arduino]:" + msg);
                 parseMessage(msg);
             }
         });
