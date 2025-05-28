@@ -1,9 +1,9 @@
 #include "devices/displays/DisplayImpl.h"
 
-#define AUTO_LINE1 "XXX% AUTO"
+#define AUTO_LINE1 "XXX% AUTOMATIC"
 #define AUTO_LINE2 ""
-#define MAN_LINE1 "XXX% MAN"
-#define MAN_LINE2 "XXX °C"
+#define MAN_LINE1 "XXX% MANUAL"
+#define MAN_LINE2 "XXX \xDF C"
 
 DisplayImpl::DisplayImpl(){
     this->lcd = new LCDisplay();
