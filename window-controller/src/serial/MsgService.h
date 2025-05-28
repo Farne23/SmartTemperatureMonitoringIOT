@@ -3,23 +3,23 @@
 
 #include "MsgQueue.h"
 
-class Msg {
-  String content;
+// class Msg {
+//   String content;
 
-public:
-  Msg(String content){
-    this->content = content;
-  }
+// public:
+//   Msg(String content){
+//     this->content = content;
+//   }
   
-  String getContent(){
-    return content;
-  }
-};
+//   String getContent(){
+//     return content;
+//   }
+// };
 
-class Pattern {
-public:
-  virtual boolean match(const Msg& m) = 0;  
-};
+// class Pattern {
+// public:
+//   virtual boolean match(const Msg& m) = 0;  
+// };
 
 class MsgServiceClass {
     

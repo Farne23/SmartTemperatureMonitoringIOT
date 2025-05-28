@@ -18,7 +18,7 @@ Msg *MsgServiceClass::receiveMsg()
     //currentMsg = NULL;
     Msg *msg = queue->dequeue();
     msgAvailable = queue->size() > 0;
-    content = "";
+    //content = "";
     return msg;
   }
   else
@@ -53,7 +53,7 @@ void serialEvent()
       //MsgService.currentMsg = new Msg(content);
       MsgService.queue->enqueue(new Msg(content));
       MsgService.msgAvailable = true;
-      //content = "";
+      content = "";
     }
     else
     {

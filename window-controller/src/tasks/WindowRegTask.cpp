@@ -7,6 +7,7 @@ WindowRegTask::WindowRegTask(WindowController *controller) {
 }
 
 void WindowRegTask::tick() {
+    double perc, temp;
     // fetch data from serial line.
     this->controller->fetch();
 
@@ -24,8 +25,7 @@ void WindowRegTask::tick() {
     ControlMode mode = this->controller->getMode();
     switch(mode) {
         case MANUAL:
-            double perc,
-                temp = this->controller->getTemp();
+            temp = this->controller->getTemp();
             // if no temperature is sent, then is zero.
             temp = (temp == DEF_TEMP) ? 0 : temp;
             // if dashboard communication is active,
@@ -37,20 +37,25 @@ void WindowRegTask::tick() {
                 perc = (perc == DEF_PERC) ? 0 : perc;
                 // show all on the display.
                 this->controller->displayMan(perc, temp);
+                this->controller->setPerc(perc);
                 return;
             }
             // this percentage should always be valid
             perc = this->controller->getTunerPerc();
             // show all on the display
             this->controller->displayMan(perc, temp);
+            this->controller->setPerc(perc);
             // send informations on the serial line
             this->controller->sendData(String(perc));
+            break;
 
         case AUTO:
-            double perc = this->controller->getPerc();
+            perc = this->controller->getPerc();
             // if no percentage is sent, then it's zero
             perc = (perc == DEF_PERC) ? 0 : perc;
             this->controller->displayAuto(perc);
+            this->controller->setPerc(perc);
+            break;
     }
 }
 

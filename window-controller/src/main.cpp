@@ -27,7 +27,7 @@ void setup()
 
   // Control panel task initialization
   Task *controlTask = new ControlPanelTask(controller);
-  controlTask->init(50);
+  controlTask->init(150);
 
   // Adding tasks to the scheduler
   scheduler.addTask(regTask);
