@@ -5,6 +5,8 @@
 **Assignment #03 - Smart Temperature Monitoring**  
 **Version:** v1.0.0-20241211
 
+Here is a brief introduction to the assignment, for a better overview on how to deploy the system and about the choiches made during its implemementation, in the folder is also included a detailed report written in Italian.
+
 ## Overview
 This project aims to develop an IoT system to monitor the temperature of a closed environment and control the opening of a window based on the temperature readings. The system consists of four interconnected subsystems:
 
