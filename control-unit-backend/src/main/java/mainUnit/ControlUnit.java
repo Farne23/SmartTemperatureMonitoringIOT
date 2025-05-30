@@ -209,8 +209,8 @@ public class ControlUnit extends AbstractVerticle {
 						systemState = SystemState.ALARM;
 					}
 				}	
+				changeWindowOpenLevel(getOpenLevel(sample.getTemperature()));
 			}
-			changeWindowOpenLevel(getOpenLevel(sample.getTemperature()));
 		}
 		this.sendSystemStateDash();
 	}
