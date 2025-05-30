@@ -20,7 +20,7 @@ void WindowRegTask::tick() {
     }
     // if a switch request has been sent from dashboard,
     // then dashboard communication is active.
-    dashComm = (switchRq == 'M') || (switchRq == 'A');
+    dashComm = (switchRq == 'M');
 
     ControlMode mode = this->controller->getMode();
     switch(mode) {

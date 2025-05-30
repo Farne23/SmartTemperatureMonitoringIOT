@@ -14,7 +14,7 @@ public class WindowControlCommunicationClient extends AbstractVerticle{
 	private static final String UPDATE_OPENING_LEVEL = "update.opening.level.line";
     // Message lines to send data to.
     private static final String WINDOW_LEVEL_CHANGE = "window.level.change";
-    private static final String CONTROL_MODE_SWITCH = "control.mode.switch";
+    private static final String CONTROL_MODE_SWITCH = "controlmode.switch";
     // Port  and baudrate for serial communication.
     private static final String PORT = "COM3";
     private static final int BAUD_RATE = 9600;

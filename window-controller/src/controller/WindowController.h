@@ -14,7 +14,7 @@ enum ControlMode {
 
 class WindowController {
     private:
-        ControlMode mode;
+        volatile ControlMode mode;
         TunerImpl* tuner;
         Window* window;
         Display* display;

@@ -1,7 +1,5 @@
 #include "tasks/ControlPanelTask.h"
 
-#define BUTTON_SYNC_INTERVAL 50
-
 ControlPanelTask::ControlPanelTask(WindowController *controller) {
     this->controller = controller;
 }
