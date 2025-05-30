@@ -157,14 +157,6 @@ public class ControlUnit extends AbstractVerticle {
 		this.sendOpeningLevel();
 	}
 	
-	private void closeWindow() {
-		changeWindowOpenLevel(0);
-	}
-	
-	private void openWindow() {
-		changeWindowOpenLevel(100);
-	}
-	
 	/*
 	 * Updates the system's statistics
 	 */
