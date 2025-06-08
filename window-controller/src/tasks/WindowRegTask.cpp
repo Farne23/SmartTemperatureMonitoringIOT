@@ -3,48 +3,57 @@
 
 WindowRegTask::WindowRegTask(WindowController *controller) {
     this->controller = controller;
-    this->dashComm = false;
+    // tuner perc should never be invalid.
+    this->lastPotValue = this->controller->getTunerPerc();
+    this->lastPerc = this->lastPotValue;
 }
 
 void WindowRegTask::tick() {
-    double perc, temp;
+    double perc, temp, dashboardPerc, tunerPerc;
     // fetch data from serial line.
     this->controller->fetch();
 
     // eventually switch mode, if asked from dashboard.
     char switchRq = this->controller->getSwitch();
     if (switchRq == 'M') {
+        this->controller->clearPerc();
         this->controller->switchToMan();
     } else if (switchRq == 'A') {
         this->controller->switchToAuto();
     }
-    // if a switch request has been sent from dashboard,
-    // then dashboard communication is active.
-    dashComm = (switchRq == 'M');
 
     ControlMode mode = this->controller->getMode();
     switch(mode) {
         case MANUAL:
+            // get temperature from serial line.
             temp = this->controller->getTemp();
             // if no temperature is sent, then is zero.
             temp = (temp == DEF_TEMP) ? 0 : temp;
-            // if dashboard communication is active,
-            // then, expect opening level from serial line.
-            if (dashComm)
+            // set a backup value of perc, in case nothing is sent (last percentage used).
+            perc = this->lastPerc;
+            // try to read percentages from dashboard and also from potentiometer.
+            tunerPerc = this->controller->getTunerPerc();
+            dashboardPerc = this->controller->getPerc();
+            // if tuner perc significally changed from the last value,
+            // then save it.
+            if (fabs(this->lastPotValue - tunerPerc) >= GAP)
             {
-                perc = this->controller->getPerc();
-                // if no percentage is sent, then it's zero
-                perc = (perc == DEF_PERC) ? 0 : perc;
-                // show all on the display.
-                this->controller->displayMan(perc, temp);
-                this->controller->setPerc(perc);
-                return;
+                perc = tunerPerc;
             }
-            // this percentage should always be valid
-            perc = this->controller->getTunerPerc();
+            // update last potentiemeter value.
+            this->lastPotValue = tunerPerc;
+            // if the percentage from dahsboard is valid, then save it
+            if (dashboardPerc != DEF_PERC)
+            {
+                perc = dashboardPerc;
+                // clean up
+                this->controller->clearPerc();
+            }
             // show all on the display
             this->controller->displayMan(perc, temp);
             this->controller->setPerc(perc);
+            // update last percentage
+            this->lastPerc = perc;
             // send informations on the serial line
             this->controller->sendData(String(perc));
             break;
@@ -58,42 +67,3 @@ void WindowRegTask::tick() {
             break;
     }
 }
-
-    // this->controller->updateData();
-
-    // if (this->controller->getMode() == AUTO) {
-    //     if (this->controller->getSwitch() == 'M') {
-    //         this->controller->switchToMan();
-    //         return;
-    //     }
-    //     else {
-    //         double perc = this->controller->getPerc();
-    //         MsgService.sendMsg("Perc from backend: " + String(perc));
-    //         // check if perc is undefined
-    //         // if not, perc is 0
-    //         perc = (!isnan(perc) && perc < 1.0 && perc >= 0.0) ? perc : 0.0;
-    //         this->controller->setPerc(perc);
-    //         this->controller->displayAuto(perc);
-    //         // Write open percantege on serial line [1, 0]
-    //         MsgService.sendMsg(String(perc));
-    //     }
-    // }
-    // else if (this->controller->getMode() == MANUAL) {
-    //     if (this->controller->getSwitch() == 'A') {
-    //         this->controller->switchToAuto();
-    //         return;
-    //     }
-    //     double temp = this->controller->getTemp();
-    //     double perc = this->controller->getPerc();
-    //     // if perc is a defined value
-    //     if (perc != DEF_PERC) {
-    //         this->controller->setDashboardOn();
-    //     }
-    //     if (!this->controller->getDashboardComm()) {
-    //         perc = this->controller->getTunerPerc();
-    //     }
-    //     this->controller->setPerc(perc);
-    //     this->controller->displayMan(perc, temp);
-    //     // Write open percantege on serial line [1, 0]
-    //     MsgService.sendMsg(String(perc));
-    // }

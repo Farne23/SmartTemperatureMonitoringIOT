@@ -4,10 +4,13 @@
 #include "Task.h"
 #include "controller/WindowController.h"
 
+#define GAP 0.03
+
 class WindowRegTask : public Task {
     private:
         WindowController *controller;
-        bool dashComm;
+        double lastPotValue;
+        double lastPerc;
     public:
         WindowRegTask(WindowController *controller);
         void tick();

@@ -11,14 +11,14 @@ public class WindowControlCommunicationClient extends AbstractVerticle{
     //Message lines to receive from.
 	private static final String UPDATE_TEMPERATURE_LINE = "update.temperature.line";
 	private static final String UPDATE_CONTROL_MODE = "update.control.mode.line";
-	private static final String UPDATE_OPENING_LEVEL = "update.opening.level.line";
+	private static final String UPDATE_OPENING_LEVEL = "update.opening.level.controller.line";
     // Message lines to send data to.
-    private static final String WINDOW_LEVEL_CHANGE = "window.level.change";
+    private static final String WINDOW_LEVEL_CHANGE_CONTROLLER = "window.level.change.controller";
     private static final String CONTROL_MODE_SWITCH = "controlmode.switch";
     // Port  and baudrate for serial communication.
     private static final String PORT = "COM3";
     private static final int BAUD_RATE = 9600;
-    private static final long DELAY = 150;
+    private static final long DELAY = 25;
     private static final String SWITCH_MSG = "S";
     private static final int TO_PERC = 100;
 
@@ -35,7 +35,7 @@ public class WindowControlCommunicationClient extends AbstractVerticle{
         }
         log("Connected succesfully to serial line");
 
-        //Handler for messages sent by the dashboard to change opening
+        // Handler for messages sent by the dashboard to change opening
         // level.
         vertx.eventBus().consumer(UPDATE_OPENING_LEVEL, message -> {
             log("Messaggio ricevuto: " + message.body() + "%");
@@ -87,7 +87,7 @@ public class WindowControlCommunicationClient extends AbstractVerticle{
 
     private void sendOpenLv(double lv) {
         // payload with the integer "level" field
-        vertx.eventBus().publish(WINDOW_LEVEL_CHANGE, new JsonObject(Map.of("level", (int)lv)));
+        vertx.eventBus().publish(WINDOW_LEVEL_CHANGE_CONTROLLER, new JsonObject(Map.of("level", (int)lv)));
     }
 
     private void sendSwitch() {

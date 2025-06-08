@@ -69,3 +69,7 @@ void WindowController::displayAuto (double perc) {
 void WindowController::sendData(String msg) {
     this->line->sendData(msg);
 }
+
+void WindowController::clearPerc() {
+    this->line->clearPerc();
+}

@@ -11,6 +11,7 @@ class SerialLine {
         char getChangeStatus();
         double getTemp();
         double getPerc();
+        void clearPerc();
     private:
         char changeMode;
         double temp;

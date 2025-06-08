@@ -37,6 +37,7 @@ class WindowController {
         void sendData(String msg);
         void displayMan(double perc, double temp);
         void displayAuto (double perc);
+        void clearPerc();
 };
 
 #endif

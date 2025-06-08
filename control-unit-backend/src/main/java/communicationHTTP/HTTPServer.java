@@ -21,8 +21,8 @@ public class HTTPServer extends AbstractVerticle {
 	private static final String DASH_UPDATE_TEMPERATURE_STATS = "dash.update.temperature.stats";
 	private static final String DASH_UPDATE_CONTROL_MODE = "update.control.mode.line";
 	private static final String DASH_UPDATE_SYSTEM_STATE = "dash.update.system.state";
-	private static final String DASH_UPDATE_OPENING_LEVEL = "update.opening.level.line";
-	private static String CHANGE_WINDOW_LEVEL_LINE_ADDRESS = "window.level.change";
+    private static final String DASH_UPDATE_OPENING_LEVEL = "update.opening.level.dashboard.line";
+    private static String CHANGE_WINDOW_LEVEL_DASHBOARD = "window.level.change.dashboard";
 	private static String SWITCH_MODE_LINE_ADDRESS = "controlmode.switch";
 	private static String STOP_ALARM_LINE_ADDRESS = "dashboard.alarm.stop";
 
@@ -104,7 +104,6 @@ public class HTTPServer extends AbstractVerticle {
             String stateStr = body.getString("systemState");
             if (stateStr != null) {
                 systemState = SystemState.valueOf(stateStr);
-                //System.out.println("Updated system state: " + systemState);
             }
             message.reply("Success");
         });
@@ -112,7 +111,6 @@ public class HTTPServer extends AbstractVerticle {
         vertx.eventBus().consumer(DASH_UPDATE_OPENING_LEVEL, message -> {
             JsonObject body = (JsonObject) message.body();
             openingLevel = body.getInteger("openingLevel", 0);
-            //System.out.println("Updated opening level: " + openingLevel);
             message.reply("Success");
         });
     }
@@ -142,7 +140,7 @@ public class HTTPServer extends AbstractVerticle {
                     sendError(400, response.setStatusMessage("Missing or invalid 'level' field"));
                     return;
                 }
-                vertx.eventBus().publish(CHANGE_WINDOW_LEVEL_LINE_ADDRESS, body);
+                vertx.eventBus().publish(CHANGE_WINDOW_LEVEL_DASHBOARD, body);
                 break;
             default:
                 sendError(400, response.setStatusMessage("Unknown message type: " + messageType));

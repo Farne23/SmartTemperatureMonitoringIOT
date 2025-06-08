@@ -33,7 +33,8 @@ public class ControlUnit extends AbstractVerticle {
 	private static String FREQUENCY_LINE_ADDRESS = "frequency.line";
 	private static String TEMPERATURES_LINE_ADDRESS = "temperatures.line";
 	private static String OPENLEVEL_LINE_ADDRESS = "openlevel.line";
-	private static String CHANGE_WINDOW_LEVEL_LINE_ADDRESS = "window.level.change";
+	private static String CHANGE_WINDOW_LEVEL_DASHBOARD = "window.level.change.dashboard";
+	private static String CHANGE_WINDOW_LEVEL_CONTROLLER = "window.level.change.controller";
 	private static String SWITCH_MODE_LINE_ADDRESS = "controlmode.switch";
 	private static String DASH_STOP_ALARM_LINE_ADDRESS = "dashboard.alarm.stop";
 	
@@ -41,7 +42,8 @@ public class ControlUnit extends AbstractVerticle {
 	private static final String DASH_UPDATE_TEMPERATURE_STATS = "dash.update.temperature.stats";
 	private static final String SIGNAL_UPDATE_CONTROL_MODE = "update.control.mode.line";
 	private static final String DASH_UPDATE_SYSTEM_STATE = "dash.update.system.state";
-	private static final String SIGNAL_UPDATE_OPENING_LEVEL = "update.opening.level.line";
+	private static final String SIGNAL_UPDATE_OPENING_LEVEL_DASHBOARD = "update.opening.level.dashboard.line";
+	private static final String SIGNAL_UPDATE_OPENING_LEVEL_CONTROLLER = "update.opening.level.controller.line";
 	private static final String CONTROLLER_SIGNAL_TEMPERATURE_LINE_ADDRESS = "update.temperature.line";
 	
 	private LocalDateTime tooHotStartTime;
@@ -85,17 +87,26 @@ public class ControlUnit extends AbstractVerticle {
 					e.printStackTrace();
 				}		
 	        });
-		 
-		 /*Consumer for messages received from the server  or the controller system allerting that the user is trying to change the open level
-		  * of the window thorugh the dashboard, the level is changed if the mode has already been switched to manual*/
-		 vertx.eventBus().consumer(CHANGE_WINDOW_LEVEL_LINE_ADDRESS, message -> {
-			    JsonObject body = (JsonObject) message.body();
-			    int level = body.getInteger("level");
-			    if(controlMode == ControlMode.MANUAL) {
-			    	changeWindowOpenLevel(level);
-			    }
-			    message.reply("Success");
-			});
+
+		/* Consumer for maessages received from the server, allerting that the user is trying to change the level of the window
+		 * through the dashboard, the level is changed if the mode has already been switched to manual.*/
+		vertx.eventBus().consumer(CHANGE_WINDOW_LEVEL_DASHBOARD, message -> {
+			JsonObject body = (JsonObject) message.body();
+			int level = body.getInteger("level");
+			if (controlMode == ControlMode.MANUAL) {
+				changeWindowOpenLevel(level, false, true);
+			}
+		});
+
+		/* Consumer for maessages received from the server, allerting that the user is trying to change the level of the window
+		 * through the controller system, the level is changed if the mode has already been switched to manual.*/
+		vertx.eventBus().consumer(CHANGE_WINDOW_LEVEL_CONTROLLER, message -> {
+			JsonObject body = (JsonObject) message.body();
+			int level = body.getInteger("level");
+			if (controlMode == ControlMode.MANUAL) {
+				changeWindowOpenLevel(level, true, false);
+			}
+		});
 		 
 		 /*Consumer for messages received from the server or the controller system allerting that the user is trying to
 		  * switch control mode*/
@@ -145,16 +156,11 @@ public class ControlUnit extends AbstractVerticle {
 		vertx.eventBus().send(FREQUENCY_LINE_ADDRESS, frequency);		
 	}
 	
-	private void changeWindowOpenLevel(int openPercentage) {
-		
-		/*vertx.eventBus().send("temperatures.line", 
-			    new JsonObject()
-			        .put("timestamp", LocalDateTime.now().toString())
-			        .put("temperature", 22.5)
-			);*/
+	private void changeWindowOpenLevel(int openPercentage, boolean toDashboard, boolean toController) {
 		this.openingLevel = openPercentage;
-		vertx.eventBus().send(OPENLEVEL_LINE_ADDRESS, openPercentage);	
-		this.sendOpeningLevel();
+		vertx.eventBus().send(OPENLEVEL_LINE_ADDRESS, openPercentage);
+		if (toDashboard) this.sendOpeningLevelToDashboard();
+		if (toController) this.sendOpeningLevelToController();
 	}
 	
 	/*
@@ -201,7 +207,8 @@ public class ControlUnit extends AbstractVerticle {
 						systemState = SystemState.ALARM;
 					}
 				}	
-				changeWindowOpenLevel(getOpenLevel(sample.getTemperature()));
+				// in this case it should be sent to both
+				changeWindowOpenLevel(getOpenLevel(sample.getTemperature()), true, true);
 			}
 		}
 		this.sendSystemStateDash();
@@ -258,11 +265,17 @@ public class ControlUnit extends AbstractVerticle {
 	    vertx.eventBus().publish(DASH_UPDATE_SYSTEM_STATE, new JsonObject()
 	        .put("systemState", systemState != null ? systemState.toString() : null));
 	}
-	
-	/* Signlas the new opening level of the window*/
-	private void sendOpeningLevel() {
-		vertx.eventBus().publish(SIGNAL_UPDATE_OPENING_LEVEL, new JsonObject()
-	        .put("openingLevel", openingLevel));
+
+	/* Signals the new opening level to the controller */
+	private void sendOpeningLevelToController() {
+		vertx.eventBus().publish(SIGNAL_UPDATE_OPENING_LEVEL_CONTROLLER, new JsonObject()
+	    	.put("openingLevel", openingLevel));
+	}
+
+	/* Signals the new opening level to the dashboard */
+	private void sendOpeningLevelToDashboard() {
+		vertx.eventBus().publish(SIGNAL_UPDATE_OPENING_LEVEL_DASHBOARD, new JsonObject()
+	    	.put("openingLevel", openingLevel));
 	}
 	
 	/* Alerts the last sampled temperature to the controller*/
